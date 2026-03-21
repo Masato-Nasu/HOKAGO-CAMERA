@@ -1,10 +1,10 @@
 const FILTERS = [
   { id:'none', label:'なし', css:'none' },
-  { id:'soft', label:'ふんわり', css:'brightness(1.08) saturate(.92) contrast(.95)' },
+  { id:'soft', label:'ふんわり', css:'brightness(1.04) saturate(.98) contrast(.98)' },
   { id:'sparkle', label:'きらきら', css:'brightness(1.06) saturate(1.14) contrast(1.02)' },
   { id:'film', label:'フィルム', css:'sepia(.18) contrast(.96) saturate(.92) brightness(1.02)' },
   { id:'sunset', label:'ゆうやけ', css:'sepia(.16) saturate(1.12) brightness(1.04) hue-rotate(-10deg)' },
-  { id:'sky', label:'そらいろ', css:'brightness(1.05) saturate(.92) hue-rotate(10deg)' },
+  { id:'sky', label:'そらいろ', css:'brightness(1.02) saturate(.96) hue-rotate(4deg)' },
   { id:'milk', label:'ミルク', css:'brightness(1.1) contrast(.86) saturate(.88)' },
   { id:'clear', label:'はっきり', css:'brightness(1.04) contrast(1.08) saturate(1.03)' },
 ];
@@ -59,7 +59,7 @@ const state = {
   mode: 'capture',
   stream: null,
   capturedImage: '',
-  filterId: 'soft',
+  filterId: 'none',
   title: '放課後CAMERA',
   overlays: [],
   selectedId: null,
@@ -151,6 +151,7 @@ function resetAll(){
   state.selectedId = null;
   state.openScene = null;
   state.title = '放課後CAMERA';
+  state.filterId = 'none';
   els.titleInput.value = state.title;
   setNote('');
   setNote('', true);
