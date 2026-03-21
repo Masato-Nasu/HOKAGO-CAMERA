@@ -31,7 +31,7 @@
     </header>
 
     <main class="layout">
-      <section class="camera-shell">
+      <section class="camera-shell" id="cameraSection">
         <div class="camera-body">
           <div class="camera-head">
             <div class="slot"></div>
@@ -75,8 +75,15 @@
       </section>
 
       <section class="side">
-        <div class="panel">
+        <div class="panel" id="opsSection">
           <div class="section-head"><span>✦</span><h2>操作</h2></div>
+          <div class="camera-switch">
+            <span class="camera-switch-label">カメラ</span>
+            <div class="camera-switch-group">
+              <button id="rearCameraBtn" class="camera-switch-btn active" type="button">外カメラ</button>
+              <button id="frontCameraBtn" class="camera-switch-btn" type="button">内カメラ</button>
+            </div>
+          </div>
           <div class="ops">
             <button id="captureBtn" class="btn primary">📷 写真を撮る</button>
             <button id="pickImageBtn" class="btn soft">🖼️ 写真を選ぶ</button>
@@ -96,7 +103,7 @@
           <div id="shareMessage" class="note hidden"></div>
         </div>
 
-        <div class="panel">
+        <div class="panel" id="textSection">
           <div class="section-head"><span>✎</span><h2>文字</h2></div>
           <input id="textDraft" class="field" value="for you" placeholder="メッセージを入力" />
           <div class="space-top">
@@ -122,7 +129,7 @@
           <button id="addTextBtn" class="btn pink fill">文字を追加</button>
         </div>
 
-        <div class="panel">
+        <div class="panel" id="stampSection">
           <div class="section-head"><span>❀</span><h2>スタンプ</h2></div>
           <div>
             <p class="sub">Stickers</p>
@@ -203,6 +210,14 @@
       </section>
     </main>
   </div>
+
+
+  <nav class="mobile-dock">
+    <a href="#cameraSection">カメラ</a>
+    <a href="#opsSection">操作</a>
+    <a href="#textSection">文字</a>
+    <a href="#stampSection">スタンプ</a>
+  </nav>
 
   <script src="app.js"></script>
 </body>

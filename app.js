@@ -53,6 +53,8 @@ const els = {
   openPanel: document.getElementById('openPanel'),
   resetScratchBtn: document.getElementById('resetScratchBtn'),
   installBtn: document.getElementById('installBtn'),
+  rearCameraBtn: document.getElementById('rearCameraBtn'),
+  frontCameraBtn: document.getElementById('frontCameraBtn'),
 };
 
 const state = {
@@ -69,6 +71,7 @@ const state = {
   drag: null,
   deferredInstallPrompt: null,
   scratching: false,
+  cameraFacing: 'environment',
 };
 
 function uid(){ return `${Date.now()}-${Math.random().toString(36).slice(2,8)}`; }
@@ -100,6 +103,10 @@ function buildScene(){
 function updateModeButtons(){
   els.modeBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.modeBtn === state.mode));
 }
+function updateCameraSwitch(){
+  els.rearCameraBtn.classList.toggle('active', state.cameraFacing === 'environment');
+  els.frontCameraBtn.classList.toggle('active', state.cameraFacing === 'user');
+}
 async function startCamera(){
   setNote('', true);
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -107,9 +114,22 @@ async function startCamera(){
     return;
   }
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' }, audio:false });
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal: state.cameraFacing } }, audio:false });
+    } catch {
+      stream = await navigator.mediaDevices.getUserMedia({ video:true, audio:false });
+    }
     stopCamera();
     state.stream = stream;
+    const track = stream.getVideoTracks()[0];
+    const settings = track ? track.getSettings() : {};
+    if (settings.facingMode === 'user' || state.cameraFacing === 'user') {
+      state.cameraFacing = settings.facingMode === 'environment' ? 'environment' : 'user';
+    } else {
+      state.cameraFacing = settings.facingMode === 'user' ? 'user' : 'environment';
+    }
+    updateCameraSwitch();
     els.video.srcObject = stream;
     await els.video.play().catch(() => {});
   } catch {
@@ -153,6 +173,7 @@ function resetAll(){
   state.title = '放課後CAMERA';
   state.filterId = 'none';
   els.titleInput.value = state.title;
+  updateCameraSwitch();
   setNote('');
   setNote('', true);
   renderAll();
@@ -472,6 +493,7 @@ function scratchAt(clientX, clientY){
 function renderAll(){
   state.title = els.titleInput.value;
   updateModeButtons();
+  updateCameraSwitch();
   renderButtons();
   renderPreview();
   renderSelectedEditor();
@@ -511,6 +533,19 @@ function setupInstallPrompt(){
     state.deferredInstallPrompt = null;
   });
 }
+
+els.rearCameraBtn.addEventListener('click', async () => {
+  if (state.cameraFacing === 'environment') return;
+  state.cameraFacing = 'environment';
+  updateCameraSwitch();
+  if (state.mode === 'capture' && !state.capturedImage) await startCamera();
+});
+els.frontCameraBtn.addEventListener('click', async () => {
+  if (state.cameraFacing === 'user') return;
+  state.cameraFacing = 'user';
+  updateCameraSwitch();
+  if (state.mode === 'capture' && !state.capturedImage) await startCamera();
+});
 
 els.modeBtns.forEach(btn => btn.addEventListener('click', () => {
   state.mode = btn.dataset.modeBtn;

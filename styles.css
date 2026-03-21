@@ -127,3 +127,33 @@ h1{margin:.35rem 0 0;font-size:30px;line-height:1.15}
   .inline-filter-head{align-items:flex-start;flex-direction:column;gap:4px}
   .film-card{padding-bottom:72px}
 }
+
+
+.camera-switch{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:10px 12px;border-radius:18px;background:#f6efe4}
+.camera-switch-label{font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#8a6d55}
+.camera-switch-group{display:flex;gap:6px;background:#e9dece;padding:4px;border-radius:999px}
+.camera-switch-btn{border:none;background:transparent;color:#7a6049;padding:8px 12px;border-radius:999px;cursor:pointer;font-weight:700}
+.camera-switch-btn.active{background:#fff;color:#5d4025;box-shadow:0 1px 6px rgba(0,0,0,.08)}
+.mobile-dock{display:none}
+#cameraSection,#opsSection,#textSection,#stampSection{scroll-margin-top:16px}
+
+@media (max-width:720px){
+  body{padding-bottom:86px}
+  .topbar{position:sticky;top:0;z-index:30}
+  .camera-shell{padding:12px}
+  .camera-body{padding:10px}
+  .camera-front{padding:10px}
+  .screen-pad{padding:8px}
+  .stage{max-width:none;width:100%}
+  .inline-filter-zone{margin-top:10px}
+  .panel{padding:16px}
+  .side{gap:14px}
+  .header-actions{width:100%;justify-content:space-between}
+  .mode-tabs{width:100%;justify-content:space-between}
+  .mode-tabs button{flex:1 1 0;padding:10px 8px;font-size:13px}
+  .ops{grid-template-columns:1fr 1fr}
+  .btn{padding:12px 12px}
+  .camera-switch{margin-bottom:12px}
+  .mobile-dock{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;position:fixed;left:12px;right:12px;bottom:max(12px, env(safe-area-inset-bottom));z-index:40;padding:10px;border-radius:22px;background:rgba(47,35,26,.92);backdrop-filter:blur(12px);box-shadow:0 12px 30px rgba(0,0,0,.22)}
+  .mobile-dock a{text-decoration:none;text-align:center;color:#fff7ea;font-size:12px;font-weight:700;padding:10px 4px;border-radius:14px;background:rgba(255,255,255,.08)}
+}
