@@ -337,6 +337,7 @@ function renderSelectedEditor(){
 function renderOverlayLayer(items, selectable){
   els.overlayLayer.innerHTML = '';
   els.overlayLayer.classList.remove('hidden');
+  els.overlayLayer.style.pointerEvents = selectable ? 'auto' : 'none';
   items.forEach(item => {
     const wrap = document.createElement('div');
     wrap.className = `overlay ${item.kind} motion-${item.motion}` + (selectable && state.selectedId === item.id ? ' selected' : '');
@@ -473,7 +474,9 @@ function renderAll(){
   renderButtons();
   renderPreview();
   renderSelectedEditor();
-  if (state.mode === 'open' && state.openScene) setTimeout(initScratch, 0);
+  if (state.mode === 'open' && state.openScene) {
+    requestAnimationFrame(() => requestAnimationFrame(initScratch));
+  }
 }
 function refreshMainColors(){
   renderColorChips(els.colorChips, state.selectedColor, color => {
@@ -573,25 +576,64 @@ window.addEventListener('pointermove', e => {
   renderSelectedEditor();
 });
 window.addEventListener('pointerup', () => { state.drag = null; state.scratching = false; });
-els.scratchCanvas.addEventListener('pointerdown', e => {
+
+function scratchStart(clientX, clientY){
   state.scratching = true;
+  scratchAt(clientX, clientY);
+}
+function scratchMove(clientX, clientY){
+  if (!state.scratching) return;
+  scratchAt(clientX, clientY);
+}
+function scratchEnd(){
+  state.scratching = false;
+}
+
+els.scratchCanvas.addEventListener('pointerdown', e => {
   e.preventDefault();
   try { els.scratchCanvas.setPointerCapture(e.pointerId); } catch {}
-  scratchAt(e.clientX, e.clientY);
+  scratchStart(e.clientX, e.clientY);
 });
 els.scratchCanvas.addEventListener('pointermove', e => {
-  if (!state.scratching) return;
   e.preventDefault();
-  scratchAt(e.clientX, e.clientY);
+  scratchMove(e.clientX, e.clientY);
 });
 els.scratchCanvas.addEventListener('pointerup', e => {
-  state.scratching = false;
   try { els.scratchCanvas.releasePointerCapture(e.pointerId); } catch {}
+  scratchEnd();
 });
 els.scratchCanvas.addEventListener('pointercancel', e => {
-  state.scratching = false;
   try { els.scratchCanvas.releasePointerCapture(e.pointerId); } catch {}
+  scratchEnd();
 });
+
+els.scratchCanvas.addEventListener('mousedown', e => {
+  e.preventDefault();
+  scratchStart(e.clientX, e.clientY);
+});
+window.addEventListener('mousemove', e => {
+  scratchMove(e.clientX, e.clientY);
+});
+window.addEventListener('mouseup', scratchEnd);
+
+els.scratchCanvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  if (t) scratchStart(t.clientX, t.clientY);
+}, { passive:false });
+els.scratchCanvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  if (t) scratchMove(t.clientX, t.clientY);
+}, { passive:false });
+els.scratchCanvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  scratchEnd();
+}, { passive:false });
+els.scratchCanvas.addEventListener('touchcancel', e => {
+  e.preventDefault();
+  scratchEnd();
+}, { passive:false });
 window.addEventListener('resize', () => {
   if (state.mode === 'open' && state.openScene) initScratch();
 });
