@@ -1,4 +1,4 @@
-const CACHE_NAME = 'houkago-camera-v2';
+const CACHE_NAME = 'houkago-camera-v3';
 const ASSETS = [
   './',
   './index.html',

@@ -9,7 +9,7 @@ const FILTERS = [
   { id:'clear', label:'はっきり', css:'brightness(1.04) contrast(1.08) saturate(1.03)' },
 ];
 const PASTELS = ['#F9B7D1','#FFC6A8','#FFD96A','#FFF3B4','#D6F5B0','#B7F0D0','#BDEBFF','#BFCBFF','#DCC8FF','#F4C8FF','#FFFFFF','#F4EEE7'];
-const STICKERS = ['💗','✨','🎀','🌼','☁️','🍓','🫧','⭐','🐰','🧸','🌙','💌'];
+const STICKERS = ['💗','✨','🎀','🌼','☁️','🍓','🎂','⭐','🐰','🧸','🌙','💌'];
 
 const els = {
   video: document.getElementById('video'),
