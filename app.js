@@ -16,7 +16,7 @@ function dataFileName(){return `${safeName(els.titleInput.value)}-${nowStamp()}.
 function imageFileName(){return `${safeName(els.titleInput.value)}-${nowStamp()}.png`}
 function selectedItem(){return state.overlays.find(x=>x.id===state.selectedId)||null}
 function setMessage(text,type='info'){const info=els.msgInfo, err=els.msgError; info.classList.add('hidden'); err.classList.add('hidden'); if(!text)return; (type==='error'?err:info).textContent=text; (type==='error'?err:info).classList.remove('hidden')}
-function buildScene(){if(!state.capturedImage)return null;return {version:10,title:els.titleInput.value,imageDataUrl:state.capturedImage,filter:state.filterId,overlays:state.overlays,createdAt:new Date().toISOString()}}
+function buildScene(){if(!state.capturedImage)return null;return {version:13,title:els.titleInput.value,imageDataUrl:state.capturedImage,filter:state.filterId,overlays:state.overlays,createdAt:new Date().toISOString()}}
 function renderTabs(){const panels={actions:els.panelActions,text:els.panelText,sticker:els.panelSticker,selected:els.panelSelected};Object.entries(panels).forEach(([k,p])=>p.classList.toggle('active',state.activeTab===k));els.tabBtns.forEach(b=>b.classList.toggle('active',b.dataset.tab===state.activeTab))}
 function renderModes(){els.modeBtns.forEach(b=>b.classList.toggle('active',b.dataset.mode===state.mode))}
 function renderButtons(){const on=!!state.capturedImage;[els.saveImageBtn,els.saveDataBtn,els.shareDataBtn,els.addTextBtn,els.addStickerBtn].forEach(b=>b.disabled=!on)}
@@ -34,7 +34,7 @@ function renderPreview(){els.video.classList.add('hidden');els.previewImage.clas
   if(state.capturedImage){els.previewImage.src=state.capturedImage;els.previewImage.style.filter=(FILTERS.find(f=>f.id===state.filterId)||FILTERS[0]).css;els.previewImage.classList.remove('hidden');renderOverlayLayer(state.overlays,true);return}
   els.placeholder.classList.remove('hidden')
 }
-function renderAll(){renderModes();renderTabs();renderButtons();renderSelected();renderPreview()}
+function renderAll(){renderModes();renderTabs();renderButtons();renderSelected();renderFilterBar();renderPreview()}
 async function startVideoCamera(){setMessage(''); if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){setMessage('このブラウザではカメラに対応していません。写真を選ぶを使ってください。','error');return} try{stopVideoCamera(); const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}); state.stream=s; els.video.srcObject=s; els.video.classList.remove('hidden'); await els.video.play().catch(()=>{}); renderPreview(); }catch(e){setMessage('カメラが使えないため、写真を選んで試せます。','error')}}
 function stopVideoCamera(){if(state.stream){state.stream.getTracks().forEach(t=>t.stop());state.stream=null;els.video.srcObject=null}}
 function openCamera(){ if(window.innerWidth<800){ els.cameraInput.click(); } else { if(state.mode!=='capture'){state.mode='capture'; renderAll();} startVideoCamera(); setMessage('PCではライブ映像が出たら、もう一度「カメラで撮る」を押すと撮影します。'); if(state.stream&&els.video.videoWidth){ captureFromVideo(); } } }
@@ -55,6 +55,8 @@ function rerenderMainColors(){ renderColorChips(els.colorChips,state.selectedCol
 rerenderMainColors(); renderStickerChips(); renderFilterChips();
 els.modeBtns.forEach(b=>b.addEventListener('click',()=>{ state.mode=b.dataset.mode; if(state.mode==='capture'&&!state.capturedImage) startVideoCamera(); renderAll(); }));
 els.tabBtns.forEach(b=>b.addEventListener('click',()=>{ state.activeTab=b.dataset.tab; renderTabs(); }));
+els.filterPrevBtn.addEventListener('click',()=>stepFilter(-1));
+els.filterNextBtn.addEventListener('click',()=>stepFilter(1));
 els.cameraBtn.addEventListener('click',()=>{ if(window.innerWidth<800){ els.cameraInput.click(); } else { if(state.stream&&els.video.videoWidth) captureFromVideo(); else startVideoCamera(); }});
 els.pickBtn.addEventListener('click',()=>els.imageInput.click()); els.openDataBtn.addEventListener('click',()=>els.dataInput.click()); els.saveImageBtn.addEventListener('click',saveImage); els.saveDataBtn.addEventListener('click',saveData); els.shareDataBtn.addEventListener('click',shareData); els.resetBtn.addEventListener('click',resetAll); els.addTextBtn.addEventListener('click',addText); els.addStickerBtn.addEventListener('click',addSticker); els.deleteSelectedBtn.addEventListener('click',deleteSelected); els.resetScratchBtn.addEventListener('click',initScratch);
 els.cameraInput.addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) readImageFile(f); e.target.value=''; });
@@ -67,6 +69,6 @@ window.addEventListener('pointermove',e=>{ if(!state.drag)return; const item=sta
 window.addEventListener('pointerup',()=>{ state.drag=null; });
 els.scratchCanvas.addEventListener('pointerdown',e=>scratchAt(e.clientX,e.clientY)); els.scratchCanvas.addEventListener('pointermove',e=>{ if(e.buttons!==1) return; scratchAt(e.clientX,e.clientY); });
 window.addEventListener('resize',()=>{ if(state.mode==='open'&&state.openScene) initScratch(); });
-if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=12').catch(()=>{})); }
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=13').catch(()=>{})); }
 renderAll(); startVideoCamera();
 })();
