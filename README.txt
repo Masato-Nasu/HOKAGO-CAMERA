@@ -1,4 +1,4 @@
-Retro Reveal Camera PWA
+放課後CAMERA PWA
 
 同梱物
 - index.html
@@ -21,7 +21,7 @@ Retro Reveal Camera PWA
 注意
 - カメラ機能は secure context が必要です。HTTPS / localhost / file:// の安全な文脈で動作します。HTTP配信では getUserMedia が使えません。
 - Web Share API によるファイル共有はブラウザ差があり、一部環境では使えません。
-- この試作は「このアプリで開く用」のデータを JSON ベースの .revecam として保存します。
+- この試作は「このアプリで開く用」のデータを JSON ベースの .revecam として保存します。アプリ名は放課後CAMERAです。
 
 主な機能
 - カメラ撮影 / 画像読み込み

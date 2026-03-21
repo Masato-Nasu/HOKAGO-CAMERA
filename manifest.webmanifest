@@ -1,7 +1,7 @@
 {
-  "name": "Retro Reveal Camera",
-  "short_name": "Retro Reveal",
-  "description": "レトロカメラ風UIで、撮って・飾って・削ってひらく写真PWA。",
+  "name": "放課後CAMERA",
+  "short_name": "放課後CAMERA",
+  "description": "放課後のひみつを、撮って・飾って・削ってひらく写真PWA。",
   "lang": "ja",
   "start_url": "./index.html",
   "scope": "./",

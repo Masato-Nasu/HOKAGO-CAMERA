@@ -60,7 +60,7 @@ const state = {
   stream: null,
   capturedImage: '',
   filterId: 'soft',
-  title: '放課後のひみつ',
+  title: '放課後CAMERA',
   overlays: [],
   selectedId: null,
   selectedColor: PASTELS[0],
@@ -72,7 +72,7 @@ const state = {
 
 function uid(){ return `${Date.now()}-${Math.random().toString(36).slice(2,8)}`; }
 function clamp(n,min,max){ return Math.min(max, Math.max(min, n)); }
-function fileBaseName(title){ return (title || 'retro-reveal').trim().replace(/[^a-zA-Z0-9ぁ-んァ-ヶ一-龯ー_-]+/g,'-').replace(/^-+|-+$/g,'') || 'retro-reveal'; }
+function fileBaseName(title){ return (title || 'houkago-camera').trim().replace(/[^a-zA-Z0-9ぁ-んァ-ヶ一-龯ー_-]+/g,'-').replace(/^-+|-+$/g,'') || 'houkago-camera'; }
 function sceneFileName(title){ return `${fileBaseName(title)}.revecam`; }
 function currentFilterCss(id){ return (FILTERS.find(f => f.id === id) || FILTERS[0]).css; }
 
@@ -149,7 +149,7 @@ function resetAll(){
   state.overlays = [];
   state.selectedId = null;
   state.openScene = null;
-  state.title = '放課後のひみつ';
+  state.title = '放課後CAMERA';
   els.titleInput.value = state.title;
   setNote('');
   setNote('', true);
