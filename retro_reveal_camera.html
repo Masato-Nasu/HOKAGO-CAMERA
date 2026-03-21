@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Retro Reveal Camera Prototype</title>
+  <style>
+    :root{
+      --bg:#e9dfd1;
+      --panel:#f6efe4;
+      --panel-2:#eadbc8;
+      --camera:#4c3524;
+      --camera-2:#2d2118;
+      --accent:#9b6a3d;
+      --accent-dark:#6e482a;
+      --text:#352516;
+      --muted:#8a7663;
+      --line:#d8c7b2;
+      --white:#fff8ee;
+      --shadow:0 12px 28px rgba(69,44,24,.10);
+      --radius:26px;
+      font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text)}
+    button,input,select{font:inherit}
+    .app{max-width:1180px;margin:0 auto;padding:16px 16px 28px}
+    .topbar{background:var(--accent);color:#fff8ee;border-radius:28px;padding:16px 18px;box-shadow:0 18px 40px rgba(84,50,24,.18)}
+    .eyebrow{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#f5dfbf}
+    h1{font-size:24px;line-height:1.12;margin:6px 0 0}
+    .modes{display:flex;gap:8px;margin-top:14px;background:var(--accent-dark);padding:6px;border-radius:999px}
+    .modes button{flex:1;border:none;background:transparent;color:#f7ead1;padding:10px 12px;border-radius:999px;cursor:pointer}
+    .modes button.active{background:#f8f0e1;color:#5f3c21;font-weight:700}
+
+    .layout{display:grid;grid-template-columns:minmax(320px,450px) minmax(0,1fr);gap:18px;align-items:start;margin-top:18px}
+    .camera-shell{background:var(--panel-2);border:1px solid #d2bea7;border-radius:34px;padding:14px;box-shadow:var(--shadow);position:sticky;top:14px}
+    .camera-body{background:var(--camera);border-radius:28px;padding:14px}
+    .camera-head{display:flex;justify-content:space-between;align-items:center;padding:2px 4px 14px}
+    .slot{width:86px;height:16px;background:#1c130e;border-radius:999px;opacity:.82}
+    .head-right{display:flex;gap:12px;align-items:center}
+    .light{width:16px;height:16px;border-radius:50%;border:2px solid #ca9c64;background:#b27632}
+    .dial{width:30px;height:30px;border-radius:50%;border:1px solid #cfb18d;background:#8c6747;box-shadow:inset 0 2px 4px rgba(0,0,0,.25)}
+    .camera-front{position:relative;background:var(--camera-2);border-radius:28px;padding:14px}
+    .film-card{position:relative;max-width:390px;margin:6px auto 0;background:#f7ede2;border:8px solid #f7ede2;border-radius:26px;padding:14px 14px 58px;box-shadow:0 16px 36px rgba(0,0,0,.22)}
+    .screen-pad{background:#ccb9a4;border-radius:18px;padding:10px;box-shadow:inset 0 2px 6px rgba(0,0,0,.16)}
+    .stage{position:relative;aspect-ratio:3/4;max-width:320px;margin:0 auto;border-radius:18px;overflow:hidden;background:#ddd1c1}
+    .stage::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.09) 1px,transparent 1px);background-size:8px 8px;opacity:.22;mix-blend-mode:soft-light;pointer-events:none;z-index:4}
+    .media,.scratch,.overlay-layer{position:absolute;inset:0;width:100%;height:100%}
+    .media{object-fit:contain;background:#ddd1c1}
+    .placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:#6c5948;font-size:14px;line-height:1.6}
+    .overlay-layer{z-index:5}
+    .scratch{z-index:6;touch-action:none}
+    .scratch-label{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:10px;letter-spacing:.22em;color:#6d583f;font-weight:700;z-index:7;pointer-events:none}
+    .card-title{position:absolute;left:18px;right:18px;bottom:14px;text-align:center}
+    .card-title input{width:100%;border:none;background:transparent;outline:none;text-align:center;font-size:16px;font-weight:700;color:#5c4634;letter-spacing:.05em}
+    .card-title p{margin:4px 0 0;font-size:10px;letter-spacing:.24em;color:#9d8875;text-transform:uppercase}
+    .hidden{display:none !important}
+
+    .side{display:flex;flex-direction:column;gap:16px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:28px;padding:16px;box-shadow:var(--shadow)}
+    .panel-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;color:#7a5331}
+    .panel-header h2{margin:0;font-size:20px}
+    .main-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .btn{border:none;border-radius:18px;padding:14px 14px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .primary{background:#7b5130;color:#fff7ea}
+    .soft{background:#e8d7c0;color:#684a31}
+    .gold{background:#f2c57d;color:#5a381e}
+    .gold2{background:#f7dfb2;color:#5a381e}
+    .mint{background:#d7e7e6;color:#35514d}
+    .neutral{background:#ece2d5;color:#6a533f}
+    .helper{margin-top:12px;border-radius:16px;background:#eee5d8;padding:12px 13px;font-size:13px;line-height:1.55;color:#6b5846}
+    .error{background:#fff0e9;color:#9b4f29}
+
+    .field{width:100%;border:1px solid #ddcfbd;background:#fff;padding:14px 16px;border-radius:18px;outline:none}
+    .sub{font-size:12px;font-weight:700;color:#8d7764;letter-spacing:.18em;text-transform:uppercase;margin:0 0 10px}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .chips,.filters{display:flex;flex-wrap:wrap;gap:8px}
+    .color-chip{width:34px;height:34px;border-radius:999px;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer}
+    .color-chip.active{border-color:#6a4a30}
+    .sticker-chip,.filter-chip{border:none;border-radius:16px;padding:10px 12px;background:#fff9f0;cursor:pointer}
+    .sticker-chip.active{background:#ffefd1;box-shadow:0 0 0 2px #d5b281 inset}
+    .filter-chip.active{background:#ffe8c4;box-shadow:0 0 0 2px #e6bc7b inset;color:#68472c}
+
+    .overlay{position:absolute;transform:translate(-50%,-50%);user-select:none;touch-action:none;cursor:grab;max-width:84%}
+    .overlay.selected{outline:2px solid rgba(255,255,255,.9);outline-offset:3px;border-radius:14px}
+    .overlay.text span{white-space:nowrap;font-weight:700;letter-spacing:.04em;text-shadow:0 1px 0 rgba(255,255,255,.7),0 2px 10px rgba(0,0,0,.18)}
+    .overlay.sticker span{filter:drop-shadow(0 2px 8px rgba(0,0,0,.18))}
+    .motion-none{}
+    .motion-float{animation:motionFloat 3.6s ease-in-out infinite}
+    .motion-pop{animation:motionPop 2.2s ease-in-out infinite}
+    .motion-shimmer{animation:motionShimmer 2.8s linear infinite}
+    .motion-fade{animation:motionFade 1.2s ease both}
+    @keyframes motionFloat{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-6px)}}
+    @keyframes motionPop{0%,100%{transform:translate(-50%,-50%) scale(1)}40%{transform:translate(-50%,-50%) scale(1.08)}70%{transform:translate(-50%,-50%) scale(.98)}}
+    @keyframes motionShimmer{0%{transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 0 0 rgba(255,255,255,0))}50%{transform:translate(-50%,-50%) scale(1.03);filter:drop-shadow(0 0 12px rgba(255,255,255,.45))}100%{transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 0 0 rgba(255,255,255,0))}}
+    @keyframes motionFade{from{opacity:0;transform:translate(-50%,-50%) translateY(10px)}to{opacity:1;transform:translate(-50%,-50%) translateY(0)}}
+
+    .editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .selected-empty{border-radius:18px;background:#efe7db;padding:14px;font-size:14px;line-height:1.55;color:#7c6854}
+    .delete-btn{background:#fce6e1;color:#8b584e}
+    .stack{display:flex;flex-direction:column;gap:14px}
+    .mobile-tabs{display:none}
+    .tab-panel{display:block}
+
+    @media (max-width: 860px){
+      .layout{grid-template-columns:1fr}
+      .camera-shell{position:static}
+      .mobile-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+      .mobile-tabs button{border:none;border-radius:16px;padding:11px 8px;background:#dfd2c0;color:#62462e;font-weight:700}
+      .mobile-tabs button.active{background:#7a5130;color:#fff7ea}
+      .tab-panel{display:none}
+      .tab-panel.active{display:block}
+      .main-actions{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width: 520px){
+      .app{padding:12px 12px 24px}
+      .topbar{padding:14px 14px 16px;border-radius:24px}
+      h1{font-size:18px}
+      .modes button{padding:9px 10px;font-size:14px}
+      .camera-shell,.panel{border-radius:24px}
+      .camera-body,.camera-front,.film-card{border-radius:22px}
+      .main-actions,.row2,.editor-grid{grid-template-columns:1fr}
+      .btn{min-height:48px;padding:12px}
+      .panel-header h2{font-size:18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="eyebrow">放課後 Camera</div>
+      <h1>撮って、飾って、削ってひらく。</h1>
+      <div class="modes">
+        <button class="active" data-mode-btn="capture">1 撮る</button>
+        <button data-mode-btn="decorate">2 飾る</button>
+        <button data-mode-btn="open">3 ひらく</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="camera-shell">
+        <div class="camera-body">
+          <div class="camera-head">
+            <div class="slot"></div>
+            <div class="head-right"><div class="light"></div><div class="dial"></div></div>
+          </div>
+          <div class="camera-front">
+            <div class="film-card">
+              <div class="screen-pad">
+                <div id="stage" class="stage">
+                  <video id="video" class="media" playsinline muted autoplay></video>
+                  <img id="previewImage" class="media hidden" alt="preview" />
+                  <div id="overlayLayer" class="overlay-layer hidden"></div>
+                  <canvas id="scratchCanvas" class="scratch hidden"></canvas>
+                  <div id="scratchLabel" class="scratch-label hidden">SCRATCH TO REVEAL</div>
+                  <div id="placeholder" class="placeholder">写真を撮るか、画像を読み込むとここに出ます。</div>
+                </div>
+              </div>
+              <div class="card-title">
+                <input id="titleInput" value="放課後のひみつ" />
+                <p>instant memory object</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mobile-tabs">
+          <button class="active" data-tab-btn="actions">操作</button>
+          <button data-tab-btn="text">文字</button>
+          <button data-tab-btn="sticker">スタンプ</button>
+          <button data-tab-btn="selected">調整</button>
+        </div>
+      </div>
+
+      <div class="side">
+        <div id="panel-actions" class="panel tab-panel active">
+          <div class="panel-header"><span>✦</span><h2>操作</h2></div>
+          <div class="main-actions">
+            <button id="captureBtn" class="btn primary">📷 写真を撮る</button>
+            <button id="pickImageBtn" class="btn soft">🖼️ 写真を選ぶ</button>
+            <button id="saveBtn" class="btn gold">⬇️ 画像で保存</button>
+            <button id="openBtn" class="btn mint">📂 ひらく用を開く</button>
+          </div>
+          <div class="main-actions" style="margin-top:10px">
+            <button id="saveSceneBtn" class="btn gold2">💾 ひらく用を保存</button>
+            <button id="shareBtn" class="btn gold2">📤 ひらく用を送る</button>
+            <button id="resetBtn" class="btn neutral" style="grid-column:1 / -1">↺ 撮りなおす</button>
+          </div>
+          <input id="imageInput" type="file" accept="image/*" class="hidden" />
+          <input id="sceneInput" type="file" accept=".revecam,application/json" class="hidden" />
+          <div class="helper">ふつうに送りたいなら「画像で保存」。このアプリで削って開いてほしいときだけ「ひらく用を保存 / 送る」を使います。</div>
+          <div id="cameraError" class="helper error hidden"></div>
+          <div id="shareMessage" class="helper hidden"></div>
+        </div>
+
+        <div id="panel-text" class="panel tab-panel active">
+          <div class="panel-header"><span>✎</span><h2>文字</h2></div>
+          <div class="stack">
+            <input id="textDraft" class="field" value="for you" placeholder="メッセージを入力" />
+            <div>
+              <p class="sub">Pastel Colors</p>
+              <div id="colorChips" class="chips"></div>
+            </div>
+            <div class="row2">
+              <label><p class="sub">サイズ</p><input id="textSize" type="range" min="18" max="52" value="30" style="width:100%" /></label>
+              <label><p class="sub">アニメ</p><select id="textMotion" class="field"><option value="none">なし</option><option value="float">ふわふわ</option><option value="pop">ぷるん</option><option value="shimmer">きらっ</option><option value="fade" selected>じわっ</option></select></label>
+            </div>
+            <button id="addTextBtn" class="btn" style="background:#f8dde5;color:#7b4c5c">文字を追加</button>
+          </div>
+        </div>
+
+        <div id="panel-sticker" class="panel tab-panel active">
+          <div class="panel-header"><span>❀</span><h2>スタンプ & フィルター</h2></div>
+          <div class="stack">
+            <div>
+              <p class="sub">Stickers</p>
+              <div id="stickerChips" class="chips"></div>
+            </div>
+            <div class="row2">
+              <label><p class="sub">スタンプサイズ</p><input id="stickerSize" type="range" min="26" max="80" value="42" style="width:100%" /></label>
+              <label><p class="sub">アニメ</p><select id="stickerMotion" class="field"><option value="none">なし</option><option value="float" selected>ふわふわ</option><option value="pop">ぷるん</option><option value="shimmer">きらっ</option><option value="fade">じわっ</option></select></label>
+            </div>
+            <button id="addStickerBtn" class="btn" style="background:#dff1eb;color:#426d62">スタンプを追加</button>
+            <div>
+              <p class="sub">Filters</p>
+              <div id="filterChips" class="filters"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-selected" class="panel tab-panel active">
+          <div class="panel-header" style="justify-content:space-between"><div style="display:flex;gap:10px;align-items:center"><span>⚙</span><h2>選択中の調整</h2></div><button id="deleteSelectedBtn" class="btn delete-btn">🗑 削除</button></div>
+          <div id="selectedEmpty" class="selected-empty">文字かスタンプを追加して選ぶと、ここで調整できます。</div>
+          <div id="selectedEditor" class="hidden stack">
+            <div class="editor-grid">
+              <label><p class="sub">サイズ</p><input id="selectedSize" type="range" min="18" max="52" value="30" style="width:100%" /></label>
+              <label><p class="sub">アニメ</p><select id="selectedMotion" class="field"><option value="none">なし</option><option value="float">ふわふわ</option><option value="pop">ぷるん</option><option value="shimmer">きらっ</option><option value="fade">じわっ</option></select></label>
+            </div>
+            <div id="selectedTextFields" class="stack">
+              <label><p class="sub">文字内容</p><input id="selectedTextValue" class="field" value="" /></label>
+              <div><p class="sub">文字色</p><div id="selectedColorChips" class="chips"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-open" class="panel hidden">
+          <div class="panel-header" style="justify-content:space-between"><div style="display:flex;gap:10px;align-items:center"><span>✧</span><h2>ひらく体験</h2></div><button id="resetScratchBtn" class="btn neutral">もう一度隠す</button></div>
+          <div class="helper">グレーの膜をなぞると、中の写真が見えてきます。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const FILTERS=[
+      {id:'none',label:'なし',css:'none'},
+      {id:'soft',label:'ふんわり',css:'brightness(1.08) saturate(.92) contrast(.95)'},
+      {id:'sparkle',label:'きらきら',css:'brightness(1.06) saturate(1.14) contrast(1.02)'},
+      {id:'film',label:'フィルム',css:'sepia(.18) contrast(.96) saturate(.92) brightness(1.02)'},
+      {id:'sunset',label:'ゆうやけ',css:'sepia(.16) saturate(1.12) brightness(1.04) hue-rotate(-10deg)'},
+      {id:'sky',label:'そらいろ',css:'brightness(1.05) saturate(.92) hue-rotate(10deg)'},
+      {id:'milk',label:'ミルク',css:'brightness(1.1) contrast(.86) saturate(.88)'},
+      {id:'clear',label:'はっきり',css:'brightness(1.04) contrast(1.08) saturate(1.03)'}
+    ];
+    const PASTELS=['#F9B7D1','#FFC6A8','#FFD96A','#FFF3B4','#D6F5B0','#B7F0D0','#BDEBFF','#BFCBFF','#DCC8FF','#F4C8FF','#FFFFFF','#F4EEE7'];
+    const STICKERS=['💗','✨','🎀','🌼','☁️','🍓','🫧','⭐','🐰','🧸','🌙','💌'];
+
+    const els={
+      video:document.getElementById('video'), previewImage:document.getElementById('previewImage'), overlayLayer:document.getElementById('overlayLayer'),
+      scratchCanvas:document.getElementById('scratchCanvas'), scratchLabel:document.getElementById('scratchLabel'), placeholder:document.getElementById('placeholder'),
+      stage:document.getElementById('stage'), modeBtns:[...document.querySelectorAll('[data-mode-btn]')], tabBtns:[...document.querySelectorAll('[data-tab-btn]')],
+      titleInput:document.getElementById('titleInput'), captureBtn:document.getElementById('captureBtn'), pickImageBtn:document.getElementById('pickImageBtn'),
+      saveBtn:document.getElementById('saveBtn'), saveSceneBtn:document.getElementById('saveSceneBtn'), shareBtn:document.getElementById('shareBtn'), openBtn:document.getElementById('openBtn'), resetBtn:document.getElementById('resetBtn'),
+      imageInput:document.getElementById('imageInput'), sceneInput:document.getElementById('sceneInput'), cameraError:document.getElementById('cameraError'), shareMessage:document.getElementById('shareMessage'),
+      textDraft:document.getElementById('textDraft'), textSize:document.getElementById('textSize'), textMotion:document.getElementById('textMotion'), colorChips:document.getElementById('colorChips'), addTextBtn:document.getElementById('addTextBtn'),
+      stickerChips:document.getElementById('stickerChips'), stickerSize:document.getElementById('stickerSize'), stickerMotion:document.getElementById('stickerMotion'), addStickerBtn:document.getElementById('addStickerBtn'), filterChips:document.getElementById('filterChips'),
+      deleteSelectedBtn:document.getElementById('deleteSelectedBtn'), selectedEmpty:document.getElementById('selectedEmpty'), selectedEditor:document.getElementById('selectedEditor'), selectedSize:document.getElementById('selectedSize'), selectedMotion:document.getElementById('selectedMotion'), selectedTextFields:document.getElementById('selectedTextFields'), selectedTextValue:document.getElementById('selectedTextValue'), selectedColorChips:document.getElementById('selectedColorChips'),
+      panelActions:document.getElementById('panel-actions'), panelText:document.getElementById('panel-text'), panelSticker:document.getElementById('panel-sticker'), panelSelected:document.getElementById('panel-selected'), panelOpen:document.getElementById('panel-open'), resetScratchBtn:document.getElementById('resetScratchBtn')
+    };
+
+    const state={ mode:'capture', activeTab:'actions', stream:null, capturedImage:'', filterId:'soft', title:'放課後のひみつ', overlays:[], selectedId:null, selectedColor:PASTELS[0], selectedSticker:STICKERS[0], openScene:null, drag:null };
+
+    function uid(){ return `${Date.now()}-${Math.random().toString(36).slice(2,8)}`; }
+    function clamp(n,min,max){ return Math.min(max, Math.max(min,n)); }
+    function fileBaseName(title){ return (title||'retro-reveal').trim().replace(/[^a-zA-Z0-9ぁ-んァ-ヶ一-龯ー_-]+/g,'-').replace(/^-+|-+$/g,'') || 'retro-reveal'; }
+    function sceneFileName(title){ return `${fileBaseName(title)}.revecam`; }
+    function currentFilterCss(id){ return (FILTERS.find(f=>f.id===id)||FILTERS[0]).css; }
+    function buildScene(){ if(!state.capturedImage) return null; return { version:1, title:state.title, imageDataUrl:state.capturedImage, filter:state.filterId, overlays:state.overlays, createdAt:new Date().toISOString() }; }
+    function setNote(text,isError=false){ const el=isError?els.cameraError:els.shareMessage; if(!text){ el.classList.add('hidden'); return; } el.textContent=text; el.classList.remove('hidden'); }
+
+    async function startCamera(){
+      setNote('',true);
+      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ setNote('このブラウザではカメラに対応していません。写真を選ぶを使ってください。', true); return; }
+      try{
+        const stream=await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' }, audio:false });
+        stopCamera();
+        state.stream=stream;
+        els.video.srcObject=stream;
+        await els.video.play().catch(()=>{});
+      }catch(e){ setNote('カメラが使えないため、写真を選んで試作できます。', true); }
+    }
+    function stopCamera(){ if(state.stream) state.stream.getTracks().forEach(track=>track.stop()); state.stream=null; els.video.srcObject=null; }
+    function captureFromCamera(){ if(!els.video.videoWidth) return; const canvas=document.createElement('canvas'); canvas.width=els.video.videoWidth; canvas.height=els.video.videoHeight; const ctx=canvas.getContext('2d'); ctx.drawImage(els.video,0,0,canvas.width,canvas.height); state.capturedImage=canvas.toDataURL('image/jpeg', .92); stopCamera(); state.mode='decorate'; renderAll(); }
+    function readImageFile(file){ const reader=new FileReader(); reader.onload=()=>{ state.capturedImage=String(reader.result||''); state.mode='decorate'; stopCamera(); renderAll(); }; reader.readAsDataURL(file); }
+    function resetAll(){ stopCamera(); state.mode='capture'; state.capturedImage=''; state.overlays=[]; state.selectedId=null; state.openScene=null; state.title='放課後のひみつ'; els.titleInput.value=state.title; setNote(''); setNote('',true); renderAll(); startCamera(); }
+
+    function saveDataUrl(dataUrl, filename){ const a=document.createElement('a'); a.href=dataUrl; a.download=filename; a.click(); }
+    function loadImage(src){ return new Promise((resolve,reject)=>{ const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=src; }); }
+    async function exportComposedImage(){
+      const scene=buildScene(); if(!scene) return;
+      const baseImage=await loadImage(scene.imageDataUrl);
+      const canvas=document.createElement('canvas'); canvas.width=baseImage.naturalWidth||1080; canvas.height=baseImage.naturalHeight||1440;
+      const ctx=canvas.getContext('2d'); const previewWidth=320; const scale=canvas.width/previewWidth;
+      ctx.filter=currentFilterCss(scene.filter); ctx.drawImage(baseImage,0,0,canvas.width,canvas.height); ctx.filter='none'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      scene.overlays.forEach(item=>{ const x=item.x*canvas.width, y=item.y*canvas.height, size=item.size*scale; if(item.kind==='text'){ ctx.save(); ctx.font=`700 ${size}px Arial, sans-serif`; ctx.fillStyle=item.color; ctx.shadowColor='rgba(255,255,255,.72)'; ctx.shadowBlur=Math.max(2,size*.08); ctx.fillText(item.value,x,y); ctx.restore(); } else { ctx.save(); ctx.font=`${size}px Arial, sans-serif`; ctx.fillText(item.value,x,y); ctx.restore(); } });
+      saveDataUrl(canvas.toDataURL('image/png'), `${fileBaseName(scene.title)}.png`);
+      setNote(`画像で保存しました: ${fileBaseName(scene.title)}.png`);
+    }
+    function saveScene(){ const scene=buildScene(); if(!scene) return; const blob=new Blob([JSON.stringify(scene,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=sceneFileName(scene.title); a.click(); URL.revokeObjectURL(url); setNote(`ひらく用を保存しました: ${sceneFileName(scene.title)}`); }
+    async function shareScene(){ const scene=buildScene(); if(!scene) return; const file=new File([JSON.stringify(scene,null,2)],sceneFileName(scene.title),{type:'application/json'}); try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({ title:scene.title, text:'このアプリで開く写真を送ります', files:[file] }); setNote('ひらく用を送る画面を開きました。'); } else { setNote('この端末では直接送れないため、先に「ひらく用を保存」を使ってください。'); } } catch(e){ setNote('送信はキャンセルされました。'); } }
+    function openSceneFile(file){ const reader=new FileReader(); reader.onload=()=>{ try{ const parsed=JSON.parse(String(reader.result||'')); if(!parsed.imageDataUrl || !Array.isArray(parsed.overlays)) throw new Error('invalid'); state.openScene=parsed; state.mode='open'; renderAll(); }catch(e){ setNote('ひらく用データを読み込めませんでした。'); } }; reader.readAsText(file); }
+
+    function renderColorChips(root, selectedColor, onSelect){ root.innerHTML=''; PASTELS.forEach(color=>{ const btn=document.createElement('button'); btn.className='color-chip'+(selectedColor===color?' active':''); btn.style.background=color; btn.addEventListener('click',()=>onSelect(color)); root.appendChild(btn); }); }
+    function renderStickerChips(){ els.stickerChips.innerHTML=''; STICKERS.forEach(sticker=>{ const btn=document.createElement('button'); btn.className='sticker-chip'+(state.selectedSticker===sticker?' active':''); btn.textContent=sticker; btn.style.fontSize='26px'; btn.addEventListener('click',()=>{ state.selectedSticker=sticker; renderStickerChips(); }); els.stickerChips.appendChild(btn); }); }
+    function renderFilterChips(){ els.filterChips.innerHTML=''; FILTERS.forEach(filter=>{ const btn=document.createElement('button'); btn.className='filter-chip'+(state.filterId===filter.id?' active':''); btn.textContent=filter.label; btn.addEventListener('click',()=>{ state.filterId=filter.id; renderFilterChips(); renderPreview(); }); els.filterChips.appendChild(btn); }); }
+
+    function addText(){ if(!state.capturedImage || !els.textDraft.value.trim()) return; const item={ id:uid(), kind:'text', x:.5, y:.8, size:Number(els.textSize.value), color:state.selectedColor, motion:els.textMotion.value, value:els.textDraft.value.trim() }; state.overlays.push(item); state.selectedId=item.id; state.activeTab='selected'; renderAll(); }
+    function addSticker(){ if(!state.capturedImage) return; const item={ id:uid(), kind:'sticker', x:.78, y:.2, size:Number(els.stickerSize.value), motion:els.stickerMotion.value, value:state.selectedSticker }; state.overlays.push(item); state.selectedId=item.id; state.activeTab='selected'; renderAll(); }
+    function getSelected(){ return state.overlays.find(item=>item.id===state.selectedId) || null; }
+
+    function renderSelectedEditor(){
+      const selected=getSelected(); const has=!!selected;
+      els.deleteSelectedBtn.disabled=!has;
+      els.selectedEmpty.classList.toggle('hidden', has);
+      els.selectedEditor.classList.toggle('hidden', !has);
+      if(!selected) return;
+      els.selectedSize.min=selected.kind==='text' ? '18' : '26';
+      els.selectedSize.max=selected.kind==='text' ? '52' : '80';
+      els.selectedSize.value=selected.size;
+      els.selectedMotion.value=selected.motion;
+      if(selected.kind==='text'){
+        els.selectedTextFields.classList.remove('hidden');
+        els.selectedTextValue.value=selected.value;
+        renderColorChips(els.selectedColorChips, selected.color, (color)=>{ selected.color=color; renderPreview(); renderSelectedEditor(); });
+      }else{
+        els.selectedTextFields.classList.add('hidden');
+      }
+    }
+
+    function renderOverlayLayer(items, selectable){
+      els.overlayLayer.innerHTML=''; els.overlayLayer.classList.remove('hidden');
+      items.forEach(item=>{
+        const wrap=document.createElement('div'); wrap.className=`overlay ${item.kind} motion-${item.motion}`+(selectable && state.selectedId===item.id ? ' selected' : ''); wrap.style.left=`${item.x*100}%`; wrap.style.top=`${item.y*100}%`;
+        const span=document.createElement('span'); span.textContent=item.value; span.style.fontSize=`${item.size}px`; if(item.kind==='text') span.style.color=item.color; wrap.appendChild(span);
+        if(selectable){ wrap.addEventListener('pointerdown',(e)=>{ e.preventDefault(); state.selectedId=item.id; const rect=els.stage.getBoundingClientRect(); state.drag={ id:item.id, startX:e.clientX, startY:e.clientY, baseX:item.x, baseY:item.y, width:rect.width, height:rect.height }; state.activeTab='selected'; renderAll(); }); }
+        else{ wrap.style.pointerEvents='none'; }
+        els.overlayLayer.appendChild(wrap);
+      });
+    }
+
+    function initScratch(){ if(!state.openScene) return; const canvas=els.scratchCanvas; const rect=canvas.getBoundingClientRect(); const dpr=window.devicePixelRatio||1; canvas.width=Math.max(1, Math.round(rect.width*dpr)); canvas.height=Math.max(1, Math.round(rect.height*dpr)); const ctx=canvas.getContext('2d'); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr); ctx.clearRect(0,0,rect.width,rect.height); ctx.fillStyle='#C8C3BC'; ctx.fillRect(0,0,rect.width,rect.height); ctx.fillStyle='rgba(255,255,255,.16)'; for(let i=0;i<7;i++){ ctx.beginPath(); ctx.arc((rect.width/8)*(i+1), rect.height*.2, rect.width*.08, 0, Math.PI*2); ctx.fill(); } }
+    function scratchAt(clientX, clientY){ const canvas=els.scratchCanvas; const rect=canvas.getBoundingClientRect(); const ctx=canvas.getContext('2d'); ctx.save(); ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(clientX-rect.left, clientY-rect.top, Math.max(28, rect.width*.06), 0, Math.PI*2); ctx.fill(); ctx.restore(); }
+
+    function renderTabs(){
+      const mobile=window.innerWidth<=860;
+      const panels=[['actions',els.panelActions],['text',els.panelText],['sticker',els.panelSticker],['selected',els.panelSelected]];
+      panels.forEach(([key,panel])=>{ panel.classList.toggle('active', !mobile || state.activeTab===key); });
+      els.tabBtns.forEach(btn=>btn.classList.toggle('active', btn.dataset.tabBtn===state.activeTab));
+    }
+
+    function renderPreview(){
+      const modeOpen=state.mode==='open';
+      const hasCaptured=!!state.capturedImage;
+      els.video.classList.toggle('hidden', !(state.mode==='capture' && !hasCaptured));
+      els.previewImage.classList.add('hidden');
+      els.overlayLayer.classList.add('hidden');
+      els.scratchCanvas.classList.add('hidden');
+      els.scratchLabel.classList.add('hidden');
+      els.placeholder.classList.add('hidden');
+      els.panelOpen.classList.toggle('hidden', !(modeOpen && state.openScene));
+
+      if(state.mode==='capture' && !hasCaptured){
+        if(!state.stream) startCamera();
+        if(!state.stream){ els.placeholder.classList.remove('hidden'); }
+        return;
+      }
+      if(modeOpen){
+        if(!state.openScene){ els.placeholder.classList.remove('hidden'); els.placeholder.textContent='ひらく用データを選ぶと、ここで削って見られます。'; return; }
+        els.previewImage.src=state.openScene.imageDataUrl;
+        els.previewImage.style.filter=currentFilterCss(state.openScene.filter);
+        els.previewImage.classList.remove('hidden');
+        renderOverlayLayer(state.openScene.overlays,false);
+        els.scratchCanvas.classList.remove('hidden');
+        els.scratchLabel.classList.remove('hidden');
+        setTimeout(initScratch,0);
+        return;
+      }
+      if(hasCaptured){
+        els.previewImage.src=state.capturedImage;
+        els.previewImage.style.filter=currentFilterCss(state.filterId);
+        els.previewImage.classList.remove('hidden');
+        renderOverlayLayer(state.overlays,true);
+        return;
+      }
+      els.placeholder.classList.remove('hidden');
+    }
+
+    function renderButtons(){ const canDecorate=!!state.capturedImage; [els.saveBtn,els.saveSceneBtn,els.shareBtn,els.addTextBtn,els.addStickerBtn].forEach(btn=>btn.disabled=!canDecorate); }
+    function updateModeButtons(){ els.modeBtns.forEach(btn=>btn.classList.toggle('active', btn.dataset.modeBtn===state.mode)); }
+    function renderAll(){ state.title=els.titleInput.value; updateModeButtons(); renderTabs(); renderButtons(); renderPreview(); renderSelectedEditor(); }
+
+    function rerenderMainColors(){ renderColorChips(els.colorChips, state.selectedColor, (color)=>{ state.selectedColor=color; rerenderMainColors(); }); }
+    rerenderMainColors(); renderStickerChips(); renderFilterChips();
+
+    els.modeBtns.forEach(btn=>btn.addEventListener('click',()=>{ state.mode=btn.dataset.modeBtn; if(state.mode==='capture' && !state.capturedImage) startCamera(); renderAll(); }));
+    els.tabBtns.forEach(btn=>btn.addEventListener('click',()=>{ state.activeTab=btn.dataset.tabBtn; renderTabs(); }));
+    els.captureBtn.addEventListener('click', captureFromCamera);
+    els.pickImageBtn.addEventListener('click', ()=>els.imageInput.click());
+    els.openBtn.addEventListener('click', ()=>els.sceneInput.click());
+    els.resetBtn.addEventListener('click', resetAll);
+    els.saveBtn.addEventListener('click', exportComposedImage);
+    els.saveSceneBtn.addEventListener('click', saveScene);
+    els.shareBtn.addEventListener('click', shareScene);
+    els.addTextBtn.addEventListener('click', addText);
+    els.addStickerBtn.addEventListener('click', addSticker);
+    els.imageInput.addEventListener('change',(e)=>{ const file=e.target.files && e.target.files[0]; if(file) readImageFile(file); e.target.value=''; });
+    els.sceneInput.addEventListener('change',(e)=>{ const file=e.target.files && e.target.files[0]; if(file) openSceneFile(file); e.target.value=''; });
+    els.selectedSize.addEventListener('input',()=>{ const item=getSelected(); if(!item) return; item.size=Number(els.selectedSize.value); renderPreview(); });
+    els.selectedMotion.addEventListener('change',()=>{ const item=getSelected(); if(!item) return; item.motion=els.selectedMotion.value; renderPreview(); });
+    els.selectedTextValue.addEventListener('input',()=>{ const item=getSelected(); if(!item || item.kind!=='text') return; item.value=els.selectedTextValue.value; renderPreview(); });
+    els.deleteSelectedBtn.addEventListener('click',()=>{ if(!state.selectedId) return; state.overlays=state.overlays.filter(item=>item.id!==state.selectedId); state.selectedId=null; renderAll(); });
+    els.resetScratchBtn.addEventListener('click', initScratch);
+
+    window.addEventListener('pointermove',(e)=>{ if(!state.drag) return; const item=state.overlays.find(it=>it.id===state.drag.id); if(!item) return; const dx=(e.clientX-state.drag.startX)/state.drag.width; const dy=(e.clientY-state.drag.startY)/state.drag.height; item.x=clamp(state.drag.baseX+dx,.05,.95); item.y=clamp(state.drag.baseY+dy,.05,.95); renderPreview(); renderSelectedEditor(); });
+    window.addEventListener('pointerup',()=>{ state.drag=null; });
+    els.scratchCanvas.addEventListener('pointerdown',(e)=>scratchAt(e.clientX,e.clientY));
+    els.scratchCanvas.addEventListener('pointermove',(e)=>{ if(e.buttons!==1) return; scratchAt(e.clientX,e.clientY); });
+    window.addEventListener('resize', renderAll);
+
+    renderAll(); startCamera();
+  </script>
+</body>
+</html>
