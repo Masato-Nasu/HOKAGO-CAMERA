@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#8b5b35" />
   <title>放課後CAMERA</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=10" />
-  <link rel="icon" href="./favicon-32.png?v=10" sizes="32x32" />
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=10" />
+  <link rel="manifest" href="./manifest.webmanifest?v=11" />
+  <link rel="icon" href="./favicon-32.png?v=11" sizes="32x32" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=11" />
   <style>
     :root{
       --bg:#efe7db; --panel:#f9f3e9; --line:#ddceb9; --ink:#352516; --muted:#7e6a59;
@@ -52,7 +52,8 @@
     .sub{font-size:12px;font-weight:700;color:#8d7764;letter-spacing:.16em;text-transform:uppercase;margin:0 0 8px}
     .stack{display:flex;flex-direction:column;gap:14px}
     .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .chips,.filters{display:flex;flex-wrap:wrap;gap:8px}.hidden{display:none!important}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .filters{display:flex;gap:8px}.hidden{display:none!important}
     .colorChip{width:34px;height:34px;border-radius:999px;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer}.colorChip.active{border-color:#6a4a30}
     .stickerChip,.filterChip{border:none;border-radius:16px;padding:10px 12px;background:#fff9f0;cursor:pointer}.stickerChip.active{background:#ffefd1;box-shadow:0 0 0 2px #d5b281 inset}.filterChip.active{background:#ffe8c4;box-shadow:0 0 0 2px #e6bc7b inset;color:#68472c}
     .overlay{position:absolute;transform:translate(-50%,-50%);user-select:none;touch-action:none;cursor:grab;max-width:84%;z-index:5}.overlay.selected{outline:2px solid rgba(255,255,255,.92);outline-offset:3px;border-radius:14px}.overlay.text span{white-space:nowrap;font-weight:700;letter-spacing:.04em;text-shadow:0 1px 0 rgba(255,255,255,.7),0 2px 10px rgba(0,0,0,.18)}.overlay.sticker span{filter:drop-shadow(0 2px 8px rgba(0,0,0,.18))}
@@ -130,7 +131,7 @@
             <label><div class="sub">アニメ</div><select id="stickerMotion" class="field"><option value="none">なし</option><option value="float" selected>ふわふわ</option><option value="pop">ぷるん</option><option value="shimmer">きらっ</option><option value="fade">じわっ</option></select></label>
           </div>
           <button id="addStickerBtn" class="btn mint">スタンプを追加</button>
-          <div><div class="sub">Filter</div><div id="filterChips" class="filters"></div></div>
+          <label><div class="sub">Filter</div><select id="filterSelect" class="field"></select></label>
         </div>
       </div>
       <div id="panel-selected" class="panel tabPanel">
@@ -168,7 +169,7 @@ const FILTERS=[{id:'none',label:'なし',css:'none'},{id:'soft',label:'ふんわ
 const PASTELS=['#F9B7D1','#FFC6A8','#FFD96A','#FFF3B4','#D6F5B0','#B7F0D0','#BDEBFF','#BFCBFF','#DCC8FF','#F4C8FF','#FFFFFF','#F4EEE7'];
 const STICKERS=['💗','✨','🎀','🌼','☁️','🍓','🫧','⭐','🐰','🧸','🌙','💌'];
 const $=id=>document.getElementById(id);
-const els={video:$('video'),previewImage:$('previewImage'),overlayLayer:$('overlayLayer'),scratchCanvas:$('scratchCanvas'),scratchLabel:$('scratchLabel'),placeholder:$('placeholder'),stage:$('stage'),modeBtns:[...document.querySelectorAll('[data-mode]')],tabBtns:[...document.querySelectorAll('[data-tab]')],titleInput:$('titleInput'),cameraBtn:$('cameraBtn'),pickBtn:$('pickBtn'),saveImageBtn:$('saveImageBtn'),openDataBtn:$('openDataBtn'),saveDataBtn:$('saveDataBtn'),shareDataBtn:$('shareDataBtn'),resetBtn:$('resetBtn'),cameraInput:$('cameraInput'),imageInput:$('imageInput'),dataInput:$('dataInput'),msgError:$('msgError'),msgInfo:$('msgInfo'),textDraft:$('textDraft'),textSize:$('textSize'),textMotion:$('textMotion'),colorChips:$('colorChips'),addTextBtn:$('addTextBtn'),stickerChips:$('stickerChips'),stickerSize:$('stickerSize'),stickerMotion:$('stickerMotion'),addStickerBtn:$('addStickerBtn'),filterChips:$('filterChips'),selectedEmpty:$('selectedEmpty'),selectedEditor:$('selectedEditor'),selectedSize:$('selectedSize'),selectedMotion:$('selectedMotion'),selectedTextFields:$('selectedTextFields'),selectedTextValue:$('selectedTextValue'),selectedColorChips:$('selectedColorChips'),deleteSelectedBtn:$('deleteSelectedBtn'),panelActions:$('panel-actions'),panelText:$('panel-text'),panelSticker:$('panel-sticker'),panelSelected:$('panel-selected'),panelOpen:$('panel-open'),resetScratchBtn:$('resetScratchBtn')};
+const els={video:$('video'),previewImage:$('previewImage'),overlayLayer:$('overlayLayer'),scratchCanvas:$('scratchCanvas'),scratchLabel:$('scratchLabel'),placeholder:$('placeholder'),stage:$('stage'),modeBtns:[...document.querySelectorAll('[data-mode]')],tabBtns:[...document.querySelectorAll('[data-tab]')],titleInput:$('titleInput'),cameraBtn:$('cameraBtn'),pickBtn:$('pickBtn'),saveImageBtn:$('saveImageBtn'),openDataBtn:$('openDataBtn'),saveDataBtn:$('saveDataBtn'),shareDataBtn:$('shareDataBtn'),resetBtn:$('resetBtn'),cameraInput:$('cameraInput'),imageInput:$('imageInput'),dataInput:$('dataInput'),msgError:$('msgError'),msgInfo:$('msgInfo'),textDraft:$('textDraft'),textSize:$('textSize'),textMotion:$('textMotion'),colorChips:$('colorChips'),addTextBtn:$('addTextBtn'),stickerChips:$('stickerChips'),stickerSize:$('stickerSize'),stickerMotion:$('stickerMotion'),addStickerBtn:$('addStickerBtn'),filterSelect:$('filterSelect'),selectedEmpty:$('selectedEmpty'),selectedEditor:$('selectedEditor'),selectedSize:$('selectedSize'),selectedMotion:$('selectedMotion'),selectedTextFields:$('selectedTextFields'),selectedTextValue:$('selectedTextValue'),selectedColorChips:$('selectedColorChips'),deleteSelectedBtn:$('deleteSelectedBtn'),panelActions:$('panel-actions'),panelText:$('panel-text'),panelSticker:$('panel-sticker'),panelSelected:$('panel-selected'),panelOpen:$('panel-open'),resetScratchBtn:$('resetScratchBtn')};
 const state={mode:'capture',activeTab:'actions',selectedColor:PASTELS[0],selectedSticker:STICKERS[0],stream:null,capturedImage:'',filterId:'soft',overlays:[],selectedId:null,drag:null,openScene:null};
 function uid(){return `${Date.now()}-${Math.random().toString(36).slice(2,8)}`}
 function clamp(n,min,max){return Math.min(max,Math.max(min,n))}
@@ -178,13 +179,13 @@ function dataFileName(){return `${safeName(els.titleInput.value)}-${nowStamp()}.
 function imageFileName(){return `${safeName(els.titleInput.value)}-${nowStamp()}.png`}
 function selectedItem(){return state.overlays.find(x=>x.id===state.selectedId)||null}
 function setMessage(text,type='info'){const info=els.msgInfo, err=els.msgError; info.classList.add('hidden'); err.classList.add('hidden'); if(!text)return; (type==='error'?err:info).textContent=text; (type==='error'?err:info).classList.remove('hidden')}
-function buildScene(){if(!state.capturedImage)return null;return {version:10,title:els.titleInput.value,imageDataUrl:state.capturedImage,filter:state.filterId,overlays:state.overlays,createdAt:new Date().toISOString()}}
+function buildScene(){if(!state.capturedImage)return null;return {version:11,title:els.titleInput.value,imageDataUrl:state.capturedImage,filter:state.filterId,overlays:state.overlays,createdAt:new Date().toISOString()}}
 function renderTabs(){const panels={actions:els.panelActions,text:els.panelText,sticker:els.panelSticker,selected:els.panelSelected};Object.entries(panels).forEach(([k,p])=>p.classList.toggle('active',state.activeTab===k));els.tabBtns.forEach(b=>b.classList.toggle('active',b.dataset.tab===state.activeTab))}
 function renderModes(){els.modeBtns.forEach(b=>b.classList.toggle('active',b.dataset.mode===state.mode))}
 function renderButtons(){const on=!!state.capturedImage;[els.saveImageBtn,els.saveDataBtn,els.shareDataBtn,els.addTextBtn,els.addStickerBtn].forEach(b=>b.disabled=!on)}
 function renderColorChips(root,current,onSelect){root.innerHTML='';PASTELS.forEach(c=>{const b=document.createElement('button');b.className='colorChip'+(c===current?' active':'');b.style.background=c;b.type='button';b.addEventListener('click',()=>onSelect(c));root.appendChild(b)})}
 function renderStickerChips(){els.stickerChips.innerHTML='';STICKERS.forEach(s=>{const b=document.createElement('button');b.className='stickerChip'+(state.selectedSticker===s?' active':'');b.type='button';b.textContent=s;b.style.fontSize='26px';b.addEventListener('click',()=>{state.selectedSticker=s;renderStickerChips()});els.stickerChips.appendChild(b)})}
-function renderFilterChips(){els.filterChips.innerHTML='';FILTERS.forEach(f=>{const b=document.createElement('button');b.className='filterChip'+(state.filterId===f.id?' active':'');b.type='button';b.textContent=f.label;b.addEventListener('click',()=>{state.filterId=f.id;renderFilterChips();renderPreview()});els.filterChips.appendChild(b)})}
+function renderFilterSelect(){els.filterSelect.innerHTML='';FILTERS.forEach(f=>{const opt=document.createElement('option');opt.value=f.id;opt.textContent=f.label;els.filterSelect.appendChild(opt)});els.filterSelect.value=state.filterId}
 function renderSelected(){const item=selectedItem();const show=!!item;els.selectedEmpty.classList.toggle('hidden',show);els.selectedEditor.classList.toggle('hidden',!show);if(!item)return;els.selectedSize.min=item.kind==='text'?'18':'26';els.selectedSize.max=item.kind==='text'?'52':'80';els.selectedSize.value=String(item.size);els.selectedMotion.value=item.motion;if(item.kind==='text'){els.selectedTextFields.classList.remove('hidden');els.selectedTextValue.value=item.value;renderColorChips(els.selectedColorChips,item.color,(c)=>{item.color=c;renderPreview();renderSelected()})}else{els.selectedTextFields.classList.add('hidden')}}
 function renderOverlayLayer(items,editable){els.overlayLayer.innerHTML='';els.overlayLayer.classList.remove('hidden');items.forEach(item=>{const wrap=document.createElement('div');wrap.className=`overlay ${item.kind} motion-${item.motion}`+(editable&&state.selectedId===item.id?' selected':'');wrap.style.left=`${item.x*100}%`;wrap.style.top=`${item.y*100}%`;wrap.dataset.id=item.id;const span=document.createElement('span');span.textContent=item.value;span.style.fontSize=`${item.size}px`;if(item.kind==='text')span.style.color=item.color;wrap.appendChild(span);if(editable){wrap.addEventListener('pointerdown',(e)=>{e.preventDefault();e.stopPropagation();state.selectedId=item.id;const r=els.stage.getBoundingClientRect();state.drag={id:item.id,startX:e.clientX,startY:e.clientY,baseX:item.x,baseY:item.y,w:r.width,h:r.height};state.activeTab='selected';renderAll()})}else{wrap.style.pointerEvents='none'}els.overlayLayer.appendChild(wrap)})}
 function renderPreview(){els.video.classList.add('hidden');els.previewImage.classList.add('hidden');els.overlayLayer.classList.add('hidden');els.scratchCanvas.classList.add('hidden');els.scratchLabel.classList.add('hidden');els.placeholder.classList.add('hidden');els.panelOpen.classList.toggle('hidden',!(state.mode==='open'&&state.openScene));
@@ -213,10 +214,12 @@ function openData(file){ const fr=new FileReader(); fr.onload=()=>{ try{ const d
 function initScratch(){ if(!state.openScene)return; const canvas=els.scratchCanvas, rect=canvas.getBoundingClientRect(), dpr=window.devicePixelRatio||1; canvas.width=Math.max(1,Math.round(rect.width*dpr)); canvas.height=Math.max(1,Math.round(rect.height*dpr)); const ctx=canvas.getContext('2d'); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr); ctx.clearRect(0,0,rect.width,rect.height); ctx.fillStyle='#C8C3BC'; ctx.fillRect(0,0,rect.width,rect.height); ctx.fillStyle='rgba(255,255,255,.16)'; for(let i=0;i<7;i++){ctx.beginPath();ctx.arc((rect.width/8)*(i+1),rect.height*.2,rect.width*.08,0,Math.PI*2);ctx.fill();}}
 function scratchAt(x,y){ const rect=els.scratchCanvas.getBoundingClientRect(); const ctx=els.scratchCanvas.getContext('2d'); ctx.save(); ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(x-rect.left,y-rect.top,Math.max(28,rect.width*.06),0,Math.PI*2); ctx.fill(); ctx.restore(); }
 function rerenderMainColors(){ renderColorChips(els.colorChips,state.selectedColor,(c)=>{state.selectedColor=c; rerenderMainColors();}); }
-rerenderMainColors(); renderStickerChips(); renderFilterChips();
+rerenderMainColors(); renderStickerChips(); renderFilterSelect();
 els.modeBtns.forEach(b=>b.addEventListener('click',()=>{ state.mode=b.dataset.mode; if(state.mode==='capture'&&!state.capturedImage) startVideoCamera(); renderAll(); }));
 els.tabBtns.forEach(b=>b.addEventListener('click',()=>{ state.activeTab=b.dataset.tab; renderTabs(); }));
 els.cameraBtn.addEventListener('click',()=>{ if(window.innerWidth<800){ els.cameraInput.click(); } else { if(state.stream&&els.video.videoWidth) captureFromVideo(); else startVideoCamera(); }});
+els.filterSelect.addEventListener('change',()=>{state.filterId=els.filterSelect.value;renderPreview();});
+    els.filterSelect.addEventListener('change',()=>{ state.filterId=els.filterSelect.value; renderPreview(); });
 els.pickBtn.addEventListener('click',()=>els.imageInput.click()); els.openDataBtn.addEventListener('click',()=>els.dataInput.click()); els.saveImageBtn.addEventListener('click',saveImage); els.saveDataBtn.addEventListener('click',saveData); els.shareDataBtn.addEventListener('click',shareData); els.resetBtn.addEventListener('click',resetAll); els.addTextBtn.addEventListener('click',addText); els.addStickerBtn.addEventListener('click',addSticker); els.deleteSelectedBtn.addEventListener('click',deleteSelected); els.resetScratchBtn.addEventListener('click',initScratch);
 els.cameraInput.addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) readImageFile(f); e.target.value=''; });
 els.imageInput.addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) readImageFile(f); e.target.value=''; });
@@ -228,7 +231,7 @@ window.addEventListener('pointermove',e=>{ if(!state.drag)return; const item=sta
 window.addEventListener('pointerup',()=>{ state.drag=null; });
 els.scratchCanvas.addEventListener('pointerdown',e=>scratchAt(e.clientX,e.clientY)); els.scratchCanvas.addEventListener('pointermove',e=>{ if(e.buttons!==1) return; scratchAt(e.clientX,e.clientY); });
 window.addEventListener('resize',()=>{ if(state.mode==='open'&&state.openScene) initScratch(); });
-if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=10').catch(()=>{})); }
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=11').catch(()=>{})); }
 renderAll(); startVideoCamera();
 })();
 </script>
