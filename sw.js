@@ -1,4 +1,4 @@
-const CACHE_NAME = 'retro-reveal-camera-v1';
+const CACHE_NAME = 'houkago-camera-v2';
 const ASSETS = [
   './',
   './index.html',

@@ -68,6 +68,7 @@ const state = {
   openScene: null,
   drag: null,
   deferredInstallPrompt: null,
+  scratching: false,
 };
 
 function uid(){ return `${Date.now()}-${Math.random().toString(36).slice(2,8)}`; }
@@ -374,6 +375,7 @@ function renderPreview(){
   const modeOpen = state.mode === 'open';
   const hasCaptured = !!state.capturedImage;
   const openScene = state.openScene;
+  els.overlayLayer.classList.toggle('open-pass', modeOpen);
 
   els.video.classList.toggle('hidden', !(state.mode === 'capture' && !hasCaptured));
   els.previewImage.classList.toggle('hidden', state.mode === 'capture' && !hasCaptured);
@@ -455,10 +457,13 @@ function scratchAt(clientX, clientY){
   const canvas = els.scratchCanvas;
   const rect = canvas.getBoundingClientRect();
   const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
   ctx.save();
   ctx.globalCompositeOperation = 'destination-out';
   ctx.beginPath();
-  ctx.arc(clientX - rect.left, clientY - rect.top, Math.max(28, rect.width * .06), 0, Math.PI * 2);
+  ctx.arc(x, y, Math.max(34, rect.width * .075), 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
@@ -567,11 +572,25 @@ window.addEventListener('pointermove', e => {
   renderPreview();
   renderSelectedEditor();
 });
-window.addEventListener('pointerup', () => { state.drag = null; });
-els.scratchCanvas.addEventListener('pointerdown', e => scratchAt(e.clientX, e.clientY));
-els.scratchCanvas.addEventListener('pointermove', e => {
-  if (e.buttons !== 1) return;
+window.addEventListener('pointerup', () => { state.drag = null; state.scratching = false; });
+els.scratchCanvas.addEventListener('pointerdown', e => {
+  state.scratching = true;
+  e.preventDefault();
+  try { els.scratchCanvas.setPointerCapture(e.pointerId); } catch {}
   scratchAt(e.clientX, e.clientY);
+});
+els.scratchCanvas.addEventListener('pointermove', e => {
+  if (!state.scratching) return;
+  e.preventDefault();
+  scratchAt(e.clientX, e.clientY);
+});
+els.scratchCanvas.addEventListener('pointerup', e => {
+  state.scratching = false;
+  try { els.scratchCanvas.releasePointerCapture(e.pointerId); } catch {}
+});
+els.scratchCanvas.addEventListener('pointercancel', e => {
+  state.scratching = false;
+  try { els.scratchCanvas.releasePointerCapture(e.pointerId); } catch {}
 });
 window.addEventListener('resize', () => {
   if (state.mode === 'open' && state.openScene) initScratch();
