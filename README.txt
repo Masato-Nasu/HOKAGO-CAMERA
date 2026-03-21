@@ -47,19 +47,6 @@
 
 ---
 
-## ファイル構成（想定）
-
-- `index.html` — 本体
-- `manifest.webmanifest` — PWA マニフェスト
-- `icon-192.png` — Android / PWA 用アイコン
-- `icon-512.png` — Android / PWA 用大型アイコン
-- `apple-touch-icon.png` — iPhone / iPad のホーム画面アイコン
-- `favicon-32.png` — ブラウザ用 favicon
-- `screenshot1.png` — README 用スクリーンショット
-- `README.md` — この説明書
-
----
-
 ## 使い方
 
 ### 1. 撮る
