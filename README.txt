@@ -22,13 +22,7 @@
 
 公開URL:
 
-**https://masato-nasu.github.io/HOKAGO-CAMERA/**
-
-README 上でそのまま確認できるようにする場合は、下のようにリンクを置いてください。
-
-```md
 [放課後CAMERA を開く](https://masato-nasu.github.io/HOKAGO-CAMERA/)
-```
 
 ---
 
