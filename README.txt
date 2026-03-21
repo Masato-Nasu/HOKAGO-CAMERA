@@ -27,8 +27,7 @@
 ---
 
 ## スクリーンショット
-
-![放課後CAMERA screenshot](./screenshot1.png)
+![放課後CAMERA screenshot](screenshot1.png)
 
 ---
 
