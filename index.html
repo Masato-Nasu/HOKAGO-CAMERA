@@ -1,218 +1,236 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#8b5b35" />
   <title>放課後CAMERA</title>
-  <meta name="theme-color" content="#8f5e34">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="manifest" href="./manifest.webmanifest?v=9">
-  <link rel="icon" href="./favicon-32.png?v=9" sizes="32x32">
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=9">
+  <link rel="manifest" href="./manifest.webmanifest?v=10" />
+  <link rel="icon" href="./favicon-32.png?v=10" sizes="32x32" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=10" />
   <style>
     :root{
-      --bg:#efe6d9; --panel:#f8f1e6; --paper:#f7efe4; --camera:#4c3524; --brown:#8f5e34; --brown-dark:#6e482a;
-      --gold:#e8c16f; --mint:#d9ebe8; --line:#dccbb7; --text:#352516; --muted:#85715d; --shadow:0 10px 24px rgba(64,44,24,.10);
+      --bg:#efe7db; --panel:#f9f3e9; --line:#ddceb9; --ink:#352516; --muted:#7e6a59;
+      --brown:#8b5b35; --brown2:#6f4529; --gold:#e7c171; --mint:#dcebe9; --rose:#f7dde5;
+      --stage:#d9cdbe; --paper:#f7efe3;
       font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
     }
-    *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--text)} body{min-height:100svh}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink)}
     button,input,select{font:inherit}
-    .app{max-width:900px;margin:0 auto;padding:12px 12px 28px;display:flex;flex-direction:column;gap:12px}
-    .topbar{background:var(--brown);color:#fff9ef;border-radius:24px;padding:14px 14px 12px;box-shadow:0 14px 32px rgba(84,50,24,.16)}
-    .eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#f6dfbf} h1{font-size:18px;line-height:1.16;margin:6px 0 0}
-    .modes{display:flex;gap:6px;margin-top:12px;background:var(--brown-dark);padding:6px;border-radius:999px}
-    .modes button{flex:1;border:none;background:transparent;color:#f5ead2;padding:10px 8px;border-radius:999px;cursor:pointer}
+    .app{max-width:980px;margin:0 auto;padding:12px 12px 110px;display:grid;gap:14px}
+    .top{background:var(--brown);color:#fff8ee;border-radius:24px;padding:14px 16px;box-shadow:0 12px 30px rgba(0,0,0,.12)}
+    .eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#f6e0c3}
+    h1{margin:6px 0 0;font-size:20px;line-height:1.15}
+    .modes{display:flex;gap:8px;margin-top:12px;background:var(--brown2);padding:6px;border-radius:999px}
+    .modes button{flex:1;border:none;background:transparent;color:#f8edd9;padding:10px 8px;border-radius:999px;cursor:pointer}
     .modes button.active{background:#f8f0e1;color:#5f3c21;font-weight:700}
-    .layout{display:grid;grid-template-columns:1fr;gap:12px}
-    .camera-wrap{background:#dfcfba;border:1px solid #d0bda6;border-radius:28px;padding:12px;box-shadow:var(--shadow)}
-    .camera-body{background:var(--camera);border-radius:24px;padding:12px}
-    .film{background:var(--paper);border-radius:22px;padding:12px 12px 54px;position:relative;box-shadow:0 14px 30px rgba(0,0,0,.2)}
-    .stage{position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#d8ccbc}
+    .layout{display:grid;gap:14px}
+    .cameraWrap{background:#e3d4c0;border:1px solid #d0bda7;border-radius:28px;padding:12px;box-shadow:0 10px 24px rgba(64,44,24,.10)}
+    .camera{background:#4a3425;border-radius:24px;padding:12px}
+    .film{background:var(--paper);border-radius:22px;padding:12px 12px 54px;position:relative;box-shadow:0 14px 30px rgba(0,0,0,.18)}
+    .stage{position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:var(--stage)}
     .stage::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);background-size:8px 8px;opacity:.22;mix-blend-mode:soft-light;pointer-events:none;z-index:4}
-    .media,.overlay-layer,.scratch{position:absolute;inset:0;width:100%;height:100%} .media{object-fit:contain;background:#d8ccbc} .overlay-layer{z-index:5} .scratch{z-index:6;touch-action:none}
-    .placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;color:#6c5948;font-size:14px;line-height:1.55}
-    .scratch-label{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:10px;letter-spacing:.22em;color:#6d583f;font-weight:700;z-index:7;pointer-events:none}
-    .film-title{position:absolute;left:16px;right:16px;bottom:10px;text-align:center} .film-title input{width:100%;border:none;background:transparent;outline:none;text-align:center;font-size:16px;font-weight:700;color:#5b4532}
-    .film-title p{margin:2px 0 0;font-size:10px;letter-spacing:.24em;color:#9b8773;text-transform:uppercase}
-    .panel{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:14px;box-shadow:var(--shadow)} .panel h2{margin:0 0 12px;font-size:18px;color:#7a5331}
-    .helper{border-radius:14px;background:#efe5d7;padding:10px 12px;font-size:13px;line-height:1.5;color:#6b5846} .error{background:#fff0e9;color:#9b4f29}
-    .quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px} .btn{border:none;border-radius:18px;padding:14px 12px;min-height:50px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px} .btn:disabled{opacity:.45;cursor:not-allowed}
-    .primary{background:#85542f;color:#fff8ee} .soft{background:#e8d8c1;color:#684a31} .gold{background:var(--gold);color:#5a381e} .mint{background:var(--mint);color:#35514d} .neutral{background:#ece2d5;color:#6a533f}
+    .media,.overlayLayer,.scratch{position:absolute;inset:0;width:100%;height:100%}
+    .media{object-fit:contain;background:var(--stage)}
+    .overlayLayer{z-index:5}
+    .scratch{z-index:6;touch-action:none}
+    .placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;color:#6d5a49;font-size:14px;line-height:1.55}
+    .scratchLabel{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:10px;letter-spacing:.22em;color:#6d583f;font-weight:700;z-index:7;pointer-events:none}
+    .title{position:absolute;left:16px;right:16px;bottom:10px;text-align:center}
+    .title input{width:100%;border:none;background:transparent;outline:none;text-align:center;font-size:16px;font-weight:700;color:#5b4532}
+    .title p{margin:2px 0 0;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#9b8773}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:14px;box-shadow:0 8px 18px rgba(0,0,0,.05)}
+    .panel h2{margin:0 0 12px;font-size:18px;color:#7a5331}
+    .help{border-radius:14px;background:#efe5d7;padding:10px 12px;font-size:13px;line-height:1.5;color:#6b5846}
+    .error{background:#fff0e9;color:#9b4f29}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .btn{border:none;border-radius:18px;padding:14px 12px;min-height:50px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .primary{background:#85542f;color:#fff8ee}.soft{background:#eadac4;color:#684a31}.gold{background:var(--gold);color:#5a381e}.mint{background:var(--mint);color:#35514d}.rose{background:var(--rose);color:#7b4c5c}.neutral{background:#ece2d5;color:#6a533f}
     .field{width:100%;border:1px solid #ddcfbd;background:#fff;padding:14px 16px;border-radius:18px;outline:none}
     .sub{font-size:12px;font-weight:700;color:#8d7764;letter-spacing:.16em;text-transform:uppercase;margin:0 0 8px}
-    .stack{display:flex;flex-direction:column;gap:14px} .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px} .chips,.filters{display:flex;flex-wrap:wrap;gap:8px}
-    .color-chip{width:34px;height:34px;border-radius:999px;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer} .color-chip.active{border-color:#6a4a30}
-    .sticker-chip,.filter-chip{border:none;border-radius:16px;padding:10px 12px;background:#fff9f0;cursor:pointer} .sticker-chip.active{background:#ffefd1;box-shadow:0 0 0 2px #d5b281 inset} .filter-chip.active{background:#ffe8c4;box-shadow:0 0 0 2px #e6bc7b inset;color:#68472c}
-    .overlay{position:absolute;transform:translate(-50%,-50%);user-select:none;touch-action:none;cursor:grab;max-width:84%} .overlay.selected{outline:2px solid rgba(255,255,255,.92);outline-offset:3px;border-radius:14px}
-    .overlay.text span{white-space:nowrap;font-weight:700;letter-spacing:.04em;text-shadow:0 1px 0 rgba(255,255,255,.7),0 2px 10px rgba(0,0,0,.18)} .overlay.sticker span{filter:drop-shadow(0 2px 8px rgba(0,0,0,.18))}
-    .motion-none{} .motion-float{animation:motionFloat 3.6s ease-in-out infinite} .motion-pop{animation:motionPop 2.2s ease-in-out infinite} .motion-shimmer{animation:motionShimmer 2.8s linear infinite} .motion-fade{animation:motionFade 1.2s ease both}
-    @keyframes motionFloat{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-6px)}} @keyframes motionPop{0%,100%{transform:translate(-50%,-50%) scale(1)}40%{transform:translate(-50%,-50%) scale(1.08)}70%{transform:translate(-50%,-50%) scale(.98)}} @keyframes motionShimmer{0%{transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 0 0 rgba(255,255,255,0))}50%{transform:translate(-50%,-50%) scale(1.03);filter:drop-shadow(0 0 12px rgba(255,255,255,.45))}100%{transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 0 0 rgba(255,255,255,0))}} @keyframes motionFade{from{opacity:0;transform:translate(-50%,-50%) translateY(10px)}to{opacity:1;transform:translate(-50%,-50%) translateY(0)}}
-    .hidden{display:none !important}
-    @media (min-width:700px){ .layout{grid-template-columns:420px 1fr;gap:16px} .app{padding-bottom:24px} }
-    @media (max-width:520px){ .quick-actions,.row2{grid-template-columns:1fr} }
+    .stack{display:flex;flex-direction:column;gap:14px}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .chips,.filters{display:flex;flex-wrap:wrap;gap:8px}.hidden{display:none!important}
+    .colorChip{width:34px;height:34px;border-radius:999px;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer}.colorChip.active{border-color:#6a4a30}
+    .stickerChip,.filterChip{border:none;border-radius:16px;padding:10px 12px;background:#fff9f0;cursor:pointer}.stickerChip.active{background:#ffefd1;box-shadow:0 0 0 2px #d5b281 inset}.filterChip.active{background:#ffe8c4;box-shadow:0 0 0 2px #e6bc7b inset;color:#68472c}
+    .overlay{position:absolute;transform:translate(-50%,-50%);user-select:none;touch-action:none;cursor:grab;max-width:84%;z-index:5}.overlay.selected{outline:2px solid rgba(255,255,255,.92);outline-offset:3px;border-radius:14px}.overlay.text span{white-space:nowrap;font-weight:700;letter-spacing:.04em;text-shadow:0 1px 0 rgba(255,255,255,.7),0 2px 10px rgba(0,0,0,.18)}.overlay.sticker span{filter:drop-shadow(0 2px 8px rgba(0,0,0,.18))}
+    .motion-none{} .motion-float{animation:float 3.6s ease-in-out infinite}.motion-pop{animation:pop 2.2s ease-in-out infinite}.motion-shimmer{animation:shimmer 2.8s linear infinite}.motion-fade{animation:fade 1.2s ease both}
+    @keyframes float{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-6px)}}
+    @keyframes pop{0%,100%{transform:translate(-50%,-50%) scale(1)}40%{transform:translate(-50%,-50%) scale(1.08)}70%{transform:translate(-50%,-50%) scale(.98)}}
+    @keyframes shimmer{0%{transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 0 0 rgba(255,255,255,0))}50%{transform:translate(-50%,-50%) scale(1.03);filter:drop-shadow(0 0 12px rgba(255,255,255,.45))}100%{transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 0 0 rgba(255,255,255,0))}}
+    @keyframes fade{from{opacity:0;transform:translate(-50%,-50%) translateY(10px)}to{opacity:1;transform:translate(-50%,-50%) translateY(0)}}
+    .tabPanel{display:none}.tabPanel.active{display:block}
+    .dock{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:20;background:rgba(69,48,31,.92);backdrop-filter:blur(10px);border-radius:22px;padding:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;box-shadow:0 12px 30px rgba(0,0,0,.22)}
+    .dock button{border:none;border-radius:16px;background:rgba(255,255,255,.08);color:#fff5e5;padding:12px 6px;font-weight:700;cursor:pointer}.dock button.active{background:#f7efe2;color:#5d3b20}
+    @media (min-width: 800px){.app{max-width:980px;padding-bottom:18px}.layout{grid-template-columns:430px 1fr}.dock{position:static;background:transparent;backdrop-filter:none;box-shadow:none;padding:0;display:flex}.dock button{background:#e3d5c3;color:#65472f;flex:1}.dock button.active{background:#7f5330;color:#fff7ea}}
   </style>
 </head>
 <body>
 <div class="app">
-  <div class="topbar">
-    <div class="eyebrow">放課後 Camera</div>
+  <div class="top">
+    <div class="eyebrow">放課後 CAMERA</div>
     <h1>撮って、飾って、削ってひらく。</h1>
     <div class="modes">
-      <button class="active" data-mode-btn="capture">1 撮る</button>
-      <button data-mode-btn="decorate">2 飾る</button>
-      <button data-mode-btn="open">3 ひらく</button>
+      <button class="active" data-mode="capture">1 撮る</button>
+      <button data-mode="decorate">2 飾る</button>
+      <button data-mode="open">3 ひらく</button>
     </div>
   </div>
-
   <div class="layout">
-    <div class="camera-wrap">
-      <div class="camera-body">
-        <div class="film">
-          <div id="stage" class="stage">
-            <img id="previewImage" class="media hidden" alt="preview">
-            <div id="overlayLayer" class="overlay-layer hidden"></div>
-            <canvas id="scratchCanvas" class="scratch hidden"></canvas>
-            <div id="scratchLabel" class="scratch-label hidden">SCRATCH TO REVEAL</div>
-            <div id="placeholder" class="placeholder">「カメラで撮る」または「写真を選ぶ」から始めます。</div>
-          </div>
-          <div class="film-title">
-            <input id="titleInput" value="放課後のひみつ">
-            <p>after school memory</p>
-          </div>
-        </div>
+    <div class="cameraWrap"><div class="camera"><div class="film">
+      <div id="stage" class="stage">
+        <video id="video" class="media hidden" playsinline muted autoplay></video>
+        <img id="previewImage" class="media hidden" alt="preview" />
+        <div id="overlayLayer" class="overlayLayer hidden"></div>
+        <canvas id="scratchCanvas" class="scratch hidden"></canvas>
+        <div id="scratchLabel" class="scratchLabel hidden">SCRATCH TO REVEAL</div>
+        <div id="placeholder" class="placeholder">写真を撮るか、画像を読み込むとここに出ます。</div>
       </div>
-    </div>
-
+      <div class="title"><input id="titleInput" value="放課後のひみつ" /><p>after school memory</p></div>
+    </div></div></div>
     <div class="stack">
-      <div id="panel-capture" class="panel">
-        <h2>撮る</h2>
-        <div class="quick-actions">
+      <div id="panel-actions" class="panel tabPanel active">
+        <h2>操作</h2>
+        <div class="grid2">
           <button id="cameraBtn" class="btn primary">📷 カメラで撮る</button>
-          <button id="pickImageBtn" class="btn soft">🖼️ 写真を選ぶ</button>
+          <button id="pickBtn" class="btn soft">🖼️ 写真を選ぶ</button>
+          <button id="saveImageBtn" class="btn gold">⬇️ 画像で保存</button>
+          <button id="openDataBtn" class="btn mint">📂 データを開く</button>
+          <button id="saveDataBtn" class="btn soft">💾 データを保存</button>
+          <button id="shareDataBtn" class="btn soft">📤 データを送る</button>
         </div>
-        <div class="quick-actions" style="margin-top:10px">
-          <button id="resetBtn" class="btn neutral" style="grid-column:1 / -1">↺ 撮りなおす</button>
-        </div>
-        <input id="cameraInput" type="file" accept="image/*" capture="environment" class="hidden">
-        <input id="imageInput" type="file" accept="image/*" class="hidden">
-        <div class="helper">スマホでは「カメラで撮る」で端末カメラが開きます。撮れたら自動で「2 飾る」に進みます。</div>
-        <div id="cameraError" class="helper error hidden"></div>
+        <button id="resetBtn" class="btn neutral" style="width:100%;margin-top:10px">↺ 撮りなおす</button>
+        <input id="cameraInput" type="file" accept="image/*" capture="environment" class="hidden" />
+        <input id="imageInput" type="file" accept="image/*" class="hidden" />
+        <input id="dataInput" type="file" accept=".hokago,application/json" class="hidden" />
+        <div class="help">普段は「画像で保存」だけ使えば十分です。相手にもこのアプリで開いてほしいときだけ「データを保存 / 送る」を使います。</div>
+        <div id="msgError" class="help error hidden"></div>
+        <div id="msgInfo" class="help hidden"></div>
       </div>
-
-      <div id="panel-decorate" class="panel hidden">
-        <h2>飾る</h2>
-        <div class="quick-actions">
-          <button id="saveBtn" class="btn gold">⬇️ 画像を保存</button>
-          <button id="backToCaptureBtn" class="btn neutral">↺ 撮りなおす</button>
-        </div>
-        <div class="quick-actions" style="margin-top:10px">
-          <button id="saveSceneBtn" class="btn soft">💾 データを保存</button>
-          <button id="shareBtn" class="btn soft">📤 データを送る</button>
-        </div>
-        <div style="margin-top:14px">
-          <p class="sub">Filter</p>
-          <div id="filterChips" class="filters"></div>
-        </div>
-        <div class="stack" style="margin-top:14px">
-          <h2 style="font-size:16px;margin:0;color:#7a5331">文字</h2>
-          <input id="textDraft" class="field" value="for you" placeholder="メッセージを入力">
-          <div>
-            <p class="sub">Pastel Colors</p>
-            <div id="colorChips" class="chips"></div>
-          </div>
+      <div id="panel-text" class="panel tabPanel">
+        <h2>文字</h2>
+        <div class="stack">
+          <input id="textDraft" class="field" value="for you" placeholder="メッセージを入力" />
+          <div><div class="sub">Pastel Colors</div><div id="colorChips" class="chips"></div></div>
           <div class="row2">
-            <label><p class="sub">サイズ</p><input id="textSize" type="range" min="18" max="52" value="30" style="width:100%"></label>
-            <label><p class="sub">アニメ</p><select id="textMotion" class="field"><option value="none">なし</option><option value="float">ふわふわ</option><option value="pop">ぷるん</option><option value="shimmer">きらっ</option><option value="fade" selected>じわっ</option></select></label>
+            <label><div class="sub">サイズ</div><input id="textSize" type="range" min="18" max="52" value="30" style="width:100%" /></label>
+            <label><div class="sub">アニメ</div><select id="textMotion" class="field"><option value="none">なし</option><option value="float">ふわふわ</option><option value="pop">ぷるん</option><option value="shimmer">きらっ</option><option value="fade" selected>じわっ</option></select></label>
           </div>
-          <button id="addTextBtn" class="btn" style="background:#f8dde5;color:#7b4c5c">文字を追加</button>
+          <button id="addTextBtn" class="btn rose">文字を追加</button>
         </div>
-        <div class="stack" style="margin-top:14px">
-          <h2 style="font-size:16px;margin:0;color:#7a5331">スタンプ</h2>
-          <div>
-            <p class="sub">Stickers</p>
-            <div id="stickerChips" class="chips"></div>
-          </div>
-          <div class="row2">
-            <label><p class="sub">サイズ</p><input id="stickerSize" type="range" min="26" max="80" value="42" style="width:100%"></label>
-            <label><p class="sub">アニメ</p><select id="stickerMotion" class="field"><option value="none">なし</option><option value="float" selected>ふわふわ</option><option value="pop">ぷるん</option><option value="shimmer">きらっ</option><option value="fade">じわっ</option></select></label>
-          </div>
-          <button id="addStickerBtn" class="btn" style="background:#dff1eb;color:#426d62">スタンプを追加</button>
-        </div>
-        <div class="stack" style="margin-top:14px">
-          <h2 style="font-size:16px;margin:0;color:#7a5331">選択中の調整</h2>
-          <div id="selectedEmpty" class="helper">文字かスタンプを追加して、写真の上でタップするとここで調整できます。</div>
-          <div id="selectedEditor" class="stack hidden">
-            <div class="row2">
-              <label><p class="sub">サイズ</p><input id="selectedSize" type="range" min="18" max="52" value="30" style="width:100%"></label>
-              <label><p class="sub">アニメ</p><select id="selectedMotion" class="field"><option value="none">なし</option><option value="float">ふわふわ</option><option value="pop">ぷるん</option><option value="shimmer">きらっ</option><option value="fade">じわっ</option></select></label>
-            </div>
-            <div id="selectedTextFields" class="stack">
-              <label><p class="sub">文字内容</p><input id="selectedTextValue" class="field" value=""></label>
-              <div><p class="sub">文字色</p><div id="selectedColorChips" class="chips"></div></div>
-            </div>
-            <button id="deleteSelectedBtn" class="btn neutral">🗑 選択を削除</button>
-          </div>
-        </div>
-        <div id="shareMessage" class="helper hidden" style="margin-top:14px"></div>
       </div>
-
+      <div id="panel-sticker" class="panel tabPanel">
+        <h2>スタンプ・フィルター</h2>
+        <div class="stack">
+          <div><div class="sub">Stickers</div><div id="stickerChips" class="chips"></div></div>
+          <div class="row2">
+            <label><div class="sub">サイズ</div><input id="stickerSize" type="range" min="26" max="80" value="42" style="width:100%" /></label>
+            <label><div class="sub">アニメ</div><select id="stickerMotion" class="field"><option value="none">なし</option><option value="float" selected>ふわふわ</option><option value="pop">ぷるん</option><option value="shimmer">きらっ</option><option value="fade">じわっ</option></select></label>
+          </div>
+          <button id="addStickerBtn" class="btn mint">スタンプを追加</button>
+          <div><div class="sub">Filter</div><div id="filterChips" class="filters"></div></div>
+        </div>
+      </div>
+      <div id="panel-selected" class="panel tabPanel">
+        <h2>選択中の調整</h2>
+        <div id="selectedEmpty" class="help">文字かスタンプを追加して、写真の上でタップするとここで調整できます。</div>
+        <div id="selectedEditor" class="stack hidden">
+          <div class="row2">
+            <label><div class="sub">サイズ</div><input id="selectedSize" type="range" min="18" max="52" value="30" style="width:100%" /></label>
+            <label><div class="sub">アニメ</div><select id="selectedMotion" class="field"><option value="none">なし</option><option value="float">ふわふわ</option><option value="pop">ぷるん</option><option value="shimmer">きらっ</option><option value="fade">じわっ</option></select></label>
+          </div>
+          <div id="selectedTextFields" class="stack">
+            <label><div class="sub">文字内容</div><input id="selectedTextValue" class="field" value="" /></label>
+            <div><div class="sub">文字色</div><div id="selectedColorChips" class="chips"></div></div>
+          </div>
+          <button id="deleteSelectedBtn" class="btn neutral">🗑 選択を削除</button>
+        </div>
+      </div>
       <div id="panel-open" class="panel hidden">
-        <h2>ひらく</h2>
-        <div class="quick-actions">
-          <button id="openBtn" class="btn mint">📂 受け取ったデータを開く</button>
-          <button id="resetScratchBtn" class="btn neutral">↺ もう一度隠す</button>
-        </div>
-        <input id="sceneInput" type="file" accept=".revecam,application/json" class="hidden">
-        <div class="helper" style="margin-top:10px">グレーの膜をなぞると、中の写真が見えてきます。</div>
+        <h2>ひらく体験</h2>
+        <div class="help">グレーの膜をなぞると、中の写真が見えてきます。</div>
+        <button id="resetScratchBtn" class="btn neutral" style="margin-top:10px">もう一度隠す</button>
       </div>
     </div>
+  </div>
+  <div class="dock">
+    <button class="active" data-tab="actions">操作</button>
+    <button data-tab="text">文字</button>
+    <button data-tab="sticker">スタンプ</button>
+    <button data-tab="selected">調整</button>
   </div>
 </div>
 <script>
+(()=>{
 const FILTERS=[{id:'none',label:'なし',css:'none'},{id:'soft',label:'ふんわり',css:'brightness(1.08) saturate(.92) contrast(.95)'},{id:'sparkle',label:'きらきら',css:'brightness(1.06) saturate(1.14) contrast(1.02)'},{id:'film',label:'フィルム',css:'sepia(.18) contrast(.96) saturate(.92) brightness(1.02)'},{id:'sunset',label:'ゆうやけ',css:'sepia(.16) saturate(1.12) brightness(1.04) hue-rotate(-10deg)'},{id:'sky',label:'そらいろ',css:'brightness(1.05) saturate(.92) hue-rotate(10deg)'},{id:'milk',label:'ミルク',css:'brightness(1.1) contrast(.86) saturate(.88)'},{id:'clear',label:'はっきり',css:'brightness(1.04) contrast(1.08) saturate(1.03)'}];
 const PASTELS=['#F9B7D1','#FFC6A8','#FFD96A','#FFF3B4','#D6F5B0','#B7F0D0','#BDEBFF','#BFCBFF','#DCC8FF','#F4C8FF','#FFFFFF','#F4EEE7'];
 const STICKERS=['💗','✨','🎀','🌼','☁️','🍓','🫧','⭐','🐰','🧸','🌙','💌'];
-const els={modeBtns:[...document.querySelectorAll('[data-mode-btn]')],previewImage:document.getElementById('previewImage'),overlayLayer:document.getElementById('overlayLayer'),scratchCanvas:document.getElementById('scratchCanvas'),scratchLabel:document.getElementById('scratchLabel'),placeholder:document.getElementById('placeholder'),stage:document.getElementById('stage'),titleInput:document.getElementById('titleInput'),cameraBtn:document.getElementById('cameraBtn'),pickImageBtn:document.getElementById('pickImageBtn'),cameraInput:document.getElementById('cameraInput'),imageInput:document.getElementById('imageInput'),resetBtn:document.getElementById('resetBtn'),saveBtn:document.getElementById('saveBtn'),backToCaptureBtn:document.getElementById('backToCaptureBtn'),saveSceneBtn:document.getElementById('saveSceneBtn'),shareBtn:document.getElementById('shareBtn'),openBtn:document.getElementById('openBtn'),sceneInput:document.getElementById('sceneInput'),resetScratchBtn:document.getElementById('resetScratchBtn'),cameraError:document.getElementById('cameraError'),shareMessage:document.getElementById('shareMessage'),panelCapture:document.getElementById('panel-capture'),panelDecorate:document.getElementById('panel-decorate'),panelOpen:document.getElementById('panel-open'),filterChips:document.getElementById('filterChips'),textDraft:document.getElementById('textDraft'),textSize:document.getElementById('textSize'),textMotion:document.getElementById('textMotion'),colorChips:document.getElementById('colorChips'),addTextBtn:document.getElementById('addTextBtn'),stickerChips:document.getElementById('stickerChips'),stickerSize:document.getElementById('stickerSize'),stickerMotion:document.getElementById('stickerMotion'),addStickerBtn:document.getElementById('addStickerBtn'),selectedEmpty:document.getElementById('selectedEmpty'),selectedEditor:document.getElementById('selectedEditor'),selectedSize:document.getElementById('selectedSize'),selectedMotion:document.getElementById('selectedMotion'),selectedTextFields:document.getElementById('selectedTextFields'),selectedTextValue:document.getElementById('selectedTextValue'),selectedColorChips:document.getElementById('selectedColorChips'),deleteSelectedBtn:document.getElementById('deleteSelectedBtn')};
-const state={mode:'capture',capturedImage:'',filterId:'soft',title:'放課後のひみつ',overlays:[],selectedId:null,selectedColor:PASTELS[0],selectedSticker:STICKERS[0],openScene:null,drag:null};
-function uid(){return `${Date.now()}-${Math.random().toString(36).slice(2,8)}`} function clamp(n,min,max){return Math.min(max,Math.max(min,n))}
-function fileBaseName(title){return (title||'retro-reveal').trim().replace(/[^a-zA-Z0-9ぁ-んァ-ヶ一-龯ー_-]+/g,'-').replace(/^-+|-+$/g,'')||'retro-reveal'}
-function stamp(){const d=new Date();const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`}
-function currentFilterCss(id){return (FILTERS.find(f=>f.id===id)||FILTERS[0]).css}
-function buildScene(){if(!state.capturedImage)return null;return{version:1,title:state.title,imageDataUrl:state.capturedImage,filter:state.filterId,overlays:state.overlays,createdAt:new Date().toISOString()}}
-function setNote(text,isError=false){const el=isError?els.cameraError:els.shareMessage; if(!text){el.classList.add('hidden');return} el.textContent=text; el.classList.remove('hidden')}
-function getSelected(){return state.overlays.find(item=>item.id===state.selectedId)||null}
-function loadFile(file){const reader=new FileReader();reader.onload=()=>{state.capturedImage=String(reader.result||'');state.mode='decorate';renderAll()};reader.readAsDataURL(file)}
-function saveDataUrl(dataUrl,filename){const a=document.createElement('a');a.href=dataUrl;a.download=filename;a.click()}
-function loadImage(src){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=src})}
-async function exportComposedImage(){const scene=buildScene(); if(!scene) return; const baseImage=await loadImage(scene.imageDataUrl); const canvas=document.createElement('canvas'); canvas.width=baseImage.naturalWidth||1080; canvas.height=baseImage.naturalHeight||1440; const ctx=canvas.getContext('2d'); const previewWidth=320; const scale=canvas.width/previewWidth; ctx.filter=currentFilterCss(scene.filter); ctx.drawImage(baseImage,0,0,canvas.width,canvas.height); ctx.filter='none'; ctx.textAlign='center'; ctx.textBaseline='middle'; scene.overlays.forEach(item=>{const x=item.x*canvas.width,y=item.y*canvas.height,size=item.size*scale; if(item.kind==='text'){ctx.save();ctx.font=`700 ${size}px Arial, sans-serif`;ctx.fillStyle=item.color;ctx.shadowColor='rgba(255,255,255,.72)';ctx.shadowBlur=Math.max(2,size*.08);ctx.fillText(item.value,x,y);ctx.restore()} else {ctx.save();ctx.font=`${size}px Arial, sans-serif`;ctx.fillText(item.value,x,y);ctx.restore()}}); const filename=`${fileBaseName(scene.title)}-${stamp()}.png`; saveDataUrl(canvas.toDataURL('image/png'),filename); setNote(`画像を保存しました: ${filename}`)}
-function saveScene(){const scene=buildScene(); if(!scene) return; const filename=`${fileBaseName(scene.title)}-${stamp()}.revecam`; const blob=new Blob([JSON.stringify(scene,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); setNote(`データを保存しました: ${filename}`)}
-async function shareScene(){const scene=buildScene(); if(!scene) return; const file=new File([JSON.stringify(scene,null,2)],`${fileBaseName(scene.title)}-${stamp()}.revecam`,{type:'application/json'}); try{ if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({title:scene.title,text:'このアプリで開く写真を送ります',files:[file]}); setNote('データを送る画面を開きました。') } else { setNote('この端末では直接送れないため、先に「データを保存」を使ってください。') } } catch(e){ setNote('送信はキャンセルされました。') } }
-function openSceneFile(file){const reader=new FileReader(); reader.onload=()=>{ try{const parsed=JSON.parse(String(reader.result||'')); if(!parsed.imageDataUrl||!Array.isArray(parsed.overlays)) throw new Error('invalid'); state.openScene=parsed; state.mode='open'; renderAll(); } catch(e){ setNote('受け取ったデータを読み込めませんでした。') } }; reader.readAsText(file)}
-function renderColorChips(root,selectedColor,onSelect){root.innerHTML=''; PASTELS.forEach(color=>{const btn=document.createElement('button'); btn.className='color-chip'+(selectedColor===color?' active':''); btn.style.background=color; btn.addEventListener('click',()=>onSelect(color)); root.appendChild(btn)})}
-function renderStickerChips(){els.stickerChips.innerHTML=''; STICKERS.forEach(sticker=>{const btn=document.createElement('button'); btn.className='sticker-chip'+(state.selectedSticker===sticker?' active':''); btn.textContent=sticker; btn.style.fontSize='26px'; btn.addEventListener('click',()=>{state.selectedSticker=sticker; renderStickerChips()}); els.stickerChips.appendChild(btn)})}
-function renderFilterChips(){els.filterChips.innerHTML=''; FILTERS.forEach(filter=>{const btn=document.createElement('button'); btn.className='filter-chip'+(state.filterId===filter.id?' active':''); btn.textContent=filter.label; btn.addEventListener('click',()=>{state.filterId=filter.id; renderFilterChips(); renderPreview()}); els.filterChips.appendChild(btn)})}
-function addText(){ if(!state.capturedImage||!els.textDraft.value.trim()) return; const item={id:uid(),kind:'text',x:.5,y:.8,size:Number(els.textSize.value),color:state.selectedColor,motion:els.textMotion.value,value:els.textDraft.value.trim()}; state.overlays.push(item); state.selectedId=item.id; renderAll(); }
-function addSticker(){ if(!state.capturedImage) return; const item={id:uid(),kind:'sticker',x:.78,y:.2,size:Number(els.stickerSize.value),motion:els.stickerMotion.value,value:state.selectedSticker}; state.overlays.push(item); state.selectedId=item.id; renderAll(); }
-function renderSelectedEditor(){ const selected=getSelected(); const has=!!selected; els.selectedEmpty.classList.toggle('hidden',has); els.selectedEditor.classList.toggle('hidden',!has); if(!selected) return; els.selectedSize.min=selected.kind==='text'?'18':'26'; els.selectedSize.max=selected.kind==='text'?'52':'80'; els.selectedSize.value=selected.size; els.selectedMotion.value=selected.motion; if(selected.kind==='text'){ els.selectedTextFields.classList.remove('hidden'); els.selectedTextValue.value=selected.value; renderColorChips(els.selectedColorChips,selected.color,(color)=>{selected.color=color; renderPreview(); renderSelectedEditor()}) } else { els.selectedTextFields.classList.add('hidden'); } }
-function renderOverlayLayer(items,selectable){ els.overlayLayer.innerHTML=''; els.overlayLayer.classList.remove('hidden'); items.forEach(item=>{ const wrap=document.createElement('div'); wrap.className=`overlay ${item.kind} motion-${item.motion}`+(selectable&&state.selectedId===item.id?' selected':''); wrap.style.left=`${item.x*100}%`; wrap.style.top=`${item.y*100}%`; const span=document.createElement('span'); span.textContent=item.value; span.style.fontSize=`${item.size}px`; if(item.kind==='text') span.style.color=item.color; wrap.appendChild(span); if(selectable){ wrap.addEventListener('pointerdown',(e)=>{e.preventDefault(); const rect=els.stage.getBoundingClientRect(); state.selectedId=item.id; state.drag={id:item.id,startX:e.clientX,startY:e.clientY,baseX:item.x,baseY:item.y,width:rect.width,height:rect.height}; renderSelectedEditor(); renderOverlayLayer(state.overlays,true); }) } else { wrap.style.pointerEvents='none'; } els.overlayLayer.appendChild(wrap); }) }
-function initScratch(){ if(!state.openScene) return; const canvas=els.scratchCanvas; const rect=canvas.getBoundingClientRect(); const dpr=window.devicePixelRatio||1; canvas.width=Math.max(1,Math.round(rect.width*dpr)); canvas.height=Math.max(1,Math.round(rect.height*dpr)); const ctx=canvas.getContext('2d'); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr); ctx.clearRect(0,0,rect.width,rect.height); ctx.fillStyle='#C8C3BC'; ctx.fillRect(0,0,rect.width,rect.height); ctx.fillStyle='rgba(255,255,255,.16)'; for(let i=0;i<7;i++){ ctx.beginPath(); ctx.arc((rect.width/8)*(i+1), rect.height*.2, rect.width*.08, 0, Math.PI*2); ctx.fill(); } }
-function scratchAt(clientX,clientY){const canvas=els.scratchCanvas; const rect=canvas.getBoundingClientRect(); const ctx=canvas.getContext('2d'); ctx.save(); ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(clientX-rect.left,clientY-rect.top,Math.max(28,rect.width*.06),0,Math.PI*2); ctx.fill(); ctx.restore()}
-function updateModeButtons(){ els.modeBtns.forEach(btn=>btn.classList.toggle('active',btn.dataset.modeBtn===state.mode)); }
-function renderPanels(){ els.panelCapture.classList.toggle('hidden',state.mode!=='capture'); els.panelDecorate.classList.toggle('hidden',state.mode!=='decorate'); els.panelOpen.classList.toggle('hidden',state.mode!=='open'); }
-function renderPreview(){ const modeOpen=state.mode==='open'; const hasCaptured=!!state.capturedImage; els.previewImage.classList.add('hidden'); els.overlayLayer.classList.add('hidden'); els.scratchCanvas.classList.add('hidden'); els.scratchLabel.classList.add('hidden'); els.placeholder.classList.add('hidden'); if(modeOpen){ if(!state.openScene){ els.placeholder.classList.remove('hidden'); els.placeholder.textContent='受け取ったデータを選ぶと、ここで削って見られます。'; return; } els.previewImage.src=state.openScene.imageDataUrl; els.previewImage.style.filter=currentFilterCss(state.openScene.filter); els.previewImage.classList.remove('hidden'); renderOverlayLayer(state.openScene.overlays,false); els.scratchCanvas.classList.remove('hidden'); els.scratchLabel.classList.remove('hidden'); setTimeout(initScratch,0); return; } if(hasCaptured){ els.previewImage.src=state.capturedImage; els.previewImage.style.filter=currentFilterCss(state.filterId); els.previewImage.classList.remove('hidden'); renderOverlayLayer(state.overlays,true); return; } els.placeholder.classList.remove('hidden'); }
-function renderButtons(){ const canDecorate=!!state.capturedImage; [els.saveBtn,els.saveSceneBtn,els.shareBtn,els.addTextBtn,els.addStickerBtn].forEach(btn=>btn.disabled=!canDecorate); }
-function renderAll(){ state.title=els.titleInput.value; updateModeButtons(); renderPanels(); renderButtons(); renderPreview(); renderSelectedEditor(); }
-function rerenderMainColors(){ renderColorChips(els.colorChips,state.selectedColor,(color)=>{state.selectedColor=color; rerenderMainColors();}) }
+const $=id=>document.getElementById(id);
+const els={video:$('video'),previewImage:$('previewImage'),overlayLayer:$('overlayLayer'),scratchCanvas:$('scratchCanvas'),scratchLabel:$('scratchLabel'),placeholder:$('placeholder'),stage:$('stage'),modeBtns:[...document.querySelectorAll('[data-mode]')],tabBtns:[...document.querySelectorAll('[data-tab]')],titleInput:$('titleInput'),cameraBtn:$('cameraBtn'),pickBtn:$('pickBtn'),saveImageBtn:$('saveImageBtn'),openDataBtn:$('openDataBtn'),saveDataBtn:$('saveDataBtn'),shareDataBtn:$('shareDataBtn'),resetBtn:$('resetBtn'),cameraInput:$('cameraInput'),imageInput:$('imageInput'),dataInput:$('dataInput'),msgError:$('msgError'),msgInfo:$('msgInfo'),textDraft:$('textDraft'),textSize:$('textSize'),textMotion:$('textMotion'),colorChips:$('colorChips'),addTextBtn:$('addTextBtn'),stickerChips:$('stickerChips'),stickerSize:$('stickerSize'),stickerMotion:$('stickerMotion'),addStickerBtn:$('addStickerBtn'),filterChips:$('filterChips'),selectedEmpty:$('selectedEmpty'),selectedEditor:$('selectedEditor'),selectedSize:$('selectedSize'),selectedMotion:$('selectedMotion'),selectedTextFields:$('selectedTextFields'),selectedTextValue:$('selectedTextValue'),selectedColorChips:$('selectedColorChips'),deleteSelectedBtn:$('deleteSelectedBtn'),panelActions:$('panel-actions'),panelText:$('panel-text'),panelSticker:$('panel-sticker'),panelSelected:$('panel-selected'),panelOpen:$('panel-open'),resetScratchBtn:$('resetScratchBtn')};
+const state={mode:'capture',activeTab:'actions',selectedColor:PASTELS[0],selectedSticker:STICKERS[0],stream:null,capturedImage:'',filterId:'soft',overlays:[],selectedId:null,drag:null,openScene:null};
+function uid(){return `${Date.now()}-${Math.random().toString(36).slice(2,8)}`}
+function clamp(n,min,max){return Math.min(max,Math.max(min,n))}
+function nowStamp(){const d=new Date();const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`}
+function safeName(t){return (t||'houkago-camera').trim().replace(/[^a-zA-Z0-9ぁ-んァ-ヶ一-龯ー_-]+/g,'-').replace(/^-+|-+$/g,'')||'houkago-camera'}
+function dataFileName(){return `${safeName(els.titleInput.value)}-${nowStamp()}.hokago`}
+function imageFileName(){return `${safeName(els.titleInput.value)}-${nowStamp()}.png`}
+function selectedItem(){return state.overlays.find(x=>x.id===state.selectedId)||null}
+function setMessage(text,type='info'){const info=els.msgInfo, err=els.msgError; info.classList.add('hidden'); err.classList.add('hidden'); if(!text)return; (type==='error'?err:info).textContent=text; (type==='error'?err:info).classList.remove('hidden')}
+function buildScene(){if(!state.capturedImage)return null;return {version:10,title:els.titleInput.value,imageDataUrl:state.capturedImage,filter:state.filterId,overlays:state.overlays,createdAt:new Date().toISOString()}}
+function renderTabs(){const panels={actions:els.panelActions,text:els.panelText,sticker:els.panelSticker,selected:els.panelSelected};Object.entries(panels).forEach(([k,p])=>p.classList.toggle('active',state.activeTab===k));els.tabBtns.forEach(b=>b.classList.toggle('active',b.dataset.tab===state.activeTab))}
+function renderModes(){els.modeBtns.forEach(b=>b.classList.toggle('active',b.dataset.mode===state.mode))}
+function renderButtons(){const on=!!state.capturedImage;[els.saveImageBtn,els.saveDataBtn,els.shareDataBtn,els.addTextBtn,els.addStickerBtn].forEach(b=>b.disabled=!on)}
+function renderColorChips(root,current,onSelect){root.innerHTML='';PASTELS.forEach(c=>{const b=document.createElement('button');b.className='colorChip'+(c===current?' active':'');b.style.background=c;b.type='button';b.addEventListener('click',()=>onSelect(c));root.appendChild(b)})}
+function renderStickerChips(){els.stickerChips.innerHTML='';STICKERS.forEach(s=>{const b=document.createElement('button');b.className='stickerChip'+(state.selectedSticker===s?' active':'');b.type='button';b.textContent=s;b.style.fontSize='26px';b.addEventListener('click',()=>{state.selectedSticker=s;renderStickerChips()});els.stickerChips.appendChild(b)})}
+function renderFilterChips(){els.filterChips.innerHTML='';FILTERS.forEach(f=>{const b=document.createElement('button');b.className='filterChip'+(state.filterId===f.id?' active':'');b.type='button';b.textContent=f.label;b.addEventListener('click',()=>{state.filterId=f.id;renderFilterChips();renderPreview()});els.filterChips.appendChild(b)})}
+function renderSelected(){const item=selectedItem();const show=!!item;els.selectedEmpty.classList.toggle('hidden',show);els.selectedEditor.classList.toggle('hidden',!show);if(!item)return;els.selectedSize.min=item.kind==='text'?'18':'26';els.selectedSize.max=item.kind==='text'?'52':'80';els.selectedSize.value=String(item.size);els.selectedMotion.value=item.motion;if(item.kind==='text'){els.selectedTextFields.classList.remove('hidden');els.selectedTextValue.value=item.value;renderColorChips(els.selectedColorChips,item.color,(c)=>{item.color=c;renderPreview();renderSelected()})}else{els.selectedTextFields.classList.add('hidden')}}
+function renderOverlayLayer(items,editable){els.overlayLayer.innerHTML='';els.overlayLayer.classList.remove('hidden');items.forEach(item=>{const wrap=document.createElement('div');wrap.className=`overlay ${item.kind} motion-${item.motion}`+(editable&&state.selectedId===item.id?' selected':'');wrap.style.left=`${item.x*100}%`;wrap.style.top=`${item.y*100}%`;wrap.dataset.id=item.id;const span=document.createElement('span');span.textContent=item.value;span.style.fontSize=`${item.size}px`;if(item.kind==='text')span.style.color=item.color;wrap.appendChild(span);if(editable){wrap.addEventListener('pointerdown',(e)=>{e.preventDefault();e.stopPropagation();state.selectedId=item.id;const r=els.stage.getBoundingClientRect();state.drag={id:item.id,startX:e.clientX,startY:e.clientY,baseX:item.x,baseY:item.y,w:r.width,h:r.height};state.activeTab='selected';renderAll()})}else{wrap.style.pointerEvents='none'}els.overlayLayer.appendChild(wrap)})}
+function renderPreview(){els.video.classList.add('hidden');els.previewImage.classList.add('hidden');els.overlayLayer.classList.add('hidden');els.scratchCanvas.classList.add('hidden');els.scratchLabel.classList.add('hidden');els.placeholder.classList.add('hidden');els.panelOpen.classList.toggle('hidden',!(state.mode==='open'&&state.openScene));
+  if(state.mode==='capture'&&!state.capturedImage){if(state.stream){els.video.classList.remove('hidden')}else{els.placeholder.classList.remove('hidden')}return}
+  if(state.mode==='open'){
+    if(!state.openScene){els.placeholder.classList.remove('hidden');els.placeholder.textContent='受け取ったデータを選ぶと、ここで削って見られます。';return}
+    els.previewImage.src=state.openScene.imageDataUrl;els.previewImage.style.filter=(FILTERS.find(f=>f.id===state.openScene.filter)||FILTERS[0]).css;els.previewImage.classList.remove('hidden');renderOverlayLayer(state.openScene.overlays,false);els.scratchCanvas.classList.remove('hidden');els.scratchLabel.classList.remove('hidden');setTimeout(initScratch,0);return;
+  }
+  if(state.capturedImage){els.previewImage.src=state.capturedImage;els.previewImage.style.filter=(FILTERS.find(f=>f.id===state.filterId)||FILTERS[0]).css;els.previewImage.classList.remove('hidden');renderOverlayLayer(state.overlays,true);return}
+  els.placeholder.classList.remove('hidden')
+}
+function renderAll(){renderModes();renderTabs();renderButtons();renderSelected();renderPreview()}
+async function startVideoCamera(){setMessage(''); if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){setMessage('このブラウザではカメラに対応していません。写真を選ぶを使ってください。','error');return} try{stopVideoCamera(); const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}); state.stream=s; els.video.srcObject=s; els.video.classList.remove('hidden'); await els.video.play().catch(()=>{}); renderPreview(); }catch(e){setMessage('カメラが使えないため、写真を選んで試せます。','error')}}
+function stopVideoCamera(){if(state.stream){state.stream.getTracks().forEach(t=>t.stop());state.stream=null;els.video.srcObject=null}}
+function openCamera(){ if(window.innerWidth<800){ els.cameraInput.click(); } else { if(state.mode!=='capture'){state.mode='capture'; renderAll();} startVideoCamera(); setMessage('PCではライブ映像が出たら、もう一度「カメラで撮る」を押すと撮影します。'); if(state.stream&&els.video.videoWidth){ captureFromVideo(); } } }
+function captureFromVideo(){ if(!els.video.videoWidth){setMessage('カメラの準備ができたら、もう一度押してください。'); return;} const c=document.createElement('canvas'); c.width=els.video.videoWidth; c.height=els.video.videoHeight; const ctx=c.getContext('2d'); ctx.drawImage(els.video,0,0,c.width,c.height); state.capturedImage=c.toDataURL('image/jpeg',.92); stopVideoCamera(); state.mode='decorate'; state.activeTab='text'; renderAll(); }
+function readImageFile(file){ const fr=new FileReader(); fr.onload=()=>{state.capturedImage=String(fr.result||''); state.mode='decorate'; state.activeTab='text'; stopVideoCamera(); renderAll();}; fr.readAsDataURL(file); }
+function addText(){ if(!state.capturedImage){setMessage('先に写真を入れてください。','error'); return;} const value=els.textDraft.value.trim(); if(!value){setMessage('文字を入力してください。','error'); return;} const item={id:uid(),kind:'text',x:.5,y:.78,size:Number(els.textSize.value),color:state.selectedColor,motion:els.textMotion.value,value}; state.overlays.push(item); state.selectedId=item.id; state.activeTab='selected'; renderAll(); setMessage('文字を追加しました。'); }
+function addSticker(){ if(!state.capturedImage){setMessage('先に写真を入れてください。','error'); return;} const item={id:uid(),kind:'sticker',x:.78,y:.2,size:Number(els.stickerSize.value),motion:els.stickerMotion.value,value:state.selectedSticker}; state.overlays.push(item); state.selectedId=item.id; state.activeTab='selected'; renderAll(); setMessage('スタンプを追加しました。'); }
+function deleteSelected(){ if(!state.selectedId)return; state.overlays=state.overlays.filter(x=>x.id!==state.selectedId); state.selectedId=null; renderAll(); }
+function resetAll(){ stopVideoCamera(); state.mode='capture'; state.capturedImage=''; state.filterId='soft'; state.overlays=[]; state.selectedId=null; state.openScene=null; els.titleInput.value='放課後のひみつ'; state.activeTab='actions'; setMessage(''); renderAll(); }
+async function saveImage(){ const scene=buildScene(); if(!scene)return; const img=await new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=scene.imageDataUrl; }); const c=document.createElement('canvas'); c.width=img.naturalWidth||1080; c.height=img.naturalHeight||1440; const ctx=c.getContext('2d'); const scale=c.width/320; ctx.filter=(FILTERS.find(f=>f.id===scene.filter)||FILTERS[0]).css; ctx.drawImage(img,0,0,c.width,c.height); ctx.filter='none'; ctx.textAlign='center'; ctx.textBaseline='middle'; for(const item of scene.overlays){ const x=item.x*c.width, y=item.y*c.height, size=item.size*scale; if(item.kind==='text'){ ctx.save(); ctx.font=`700 ${size}px Arial,sans-serif`; ctx.fillStyle=item.color; ctx.shadowColor='rgba(255,255,255,.72)'; ctx.shadowBlur=Math.max(2,size*.08); ctx.fillText(item.value,x,y); ctx.restore(); } else { ctx.save(); ctx.font=`${size}px Arial,sans-serif`; ctx.fillText(item.value,x,y); ctx.restore(); } } const a=document.createElement('a'); a.href=c.toDataURL('image/png'); a.download=imageFileName(); a.click(); setMessage(`画像を保存しました: ${a.download}`); }
+function saveData(){ const scene=buildScene(); if(!scene)return; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(scene,null,2)],{type:'application/json'})); a.download=dataFileName(); a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); setMessage(`データを保存しました: ${a.download}`); }
+async function shareData(){ const scene=buildScene(); if(!scene)return; const file=new File([JSON.stringify(scene,null,2)],dataFileName(),{type:'application/json'}); try{ if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({title:scene.title,text:'このアプリで開く写真を送ります',files:[file]}); setMessage('データ送信画面を開きました。'); } else { setMessage('この端末では直接送れないため、先に「データを保存」を使ってください。'); } } catch(e){ setMessage('送信はキャンセルされました。'); } }
+function openData(file){ const fr=new FileReader(); fr.onload=()=>{ try{ const data=JSON.parse(String(fr.result||'')); if(!data.imageDataUrl||!Array.isArray(data.overlays)) throw new Error('bad'); state.openScene=data; state.mode='open'; renderAll(); setMessage('受け取ったデータを開きました。'); }catch(e){ setMessage('データを読み込めませんでした。','error'); } }; fr.readAsText(file); }
+function initScratch(){ if(!state.openScene)return; const canvas=els.scratchCanvas, rect=canvas.getBoundingClientRect(), dpr=window.devicePixelRatio||1; canvas.width=Math.max(1,Math.round(rect.width*dpr)); canvas.height=Math.max(1,Math.round(rect.height*dpr)); const ctx=canvas.getContext('2d'); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr); ctx.clearRect(0,0,rect.width,rect.height); ctx.fillStyle='#C8C3BC'; ctx.fillRect(0,0,rect.width,rect.height); ctx.fillStyle='rgba(255,255,255,.16)'; for(let i=0;i<7;i++){ctx.beginPath();ctx.arc((rect.width/8)*(i+1),rect.height*.2,rect.width*.08,0,Math.PI*2);ctx.fill();}}
+function scratchAt(x,y){ const rect=els.scratchCanvas.getBoundingClientRect(); const ctx=els.scratchCanvas.getContext('2d'); ctx.save(); ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(x-rect.left,y-rect.top,Math.max(28,rect.width*.06),0,Math.PI*2); ctx.fill(); ctx.restore(); }
+function rerenderMainColors(){ renderColorChips(els.colorChips,state.selectedColor,(c)=>{state.selectedColor=c; rerenderMainColors();}); }
 rerenderMainColors(); renderStickerChips(); renderFilterChips();
-els.modeBtns.forEach(btn=>btn.addEventListener('click',()=>{state.mode=btn.dataset.modeBtn; renderAll();}));
-els.cameraBtn.addEventListener('click',()=>els.cameraInput.click()); els.pickImageBtn.addEventListener('click',()=>els.imageInput.click()); els.cameraInput.addEventListener('change',(e)=>{const file=e.target.files&&e.target.files[0]; if(file) loadFile(file); e.target.value='';}); els.imageInput.addEventListener('change',(e)=>{const file=e.target.files&&e.target.files[0]; if(file) loadFile(file); e.target.value='';}); els.resetBtn.addEventListener('click',()=>{state.capturedImage=''; state.overlays=[]; state.selectedId=null; state.mode='capture'; renderAll();}); els.backToCaptureBtn.addEventListener('click',()=>{state.mode='capture'; renderAll();}); els.saveBtn.addEventListener('click',exportComposedImage); els.saveSceneBtn.addEventListener('click',saveScene); els.shareBtn.addEventListener('click',shareScene); els.openBtn.addEventListener('click',()=>els.sceneInput.click()); els.sceneInput.addEventListener('change',(e)=>{const file=e.target.files&&e.target.files[0]; if(file) openSceneFile(file); e.target.value='';}); els.addTextBtn.addEventListener('click',addText); els.addStickerBtn.addEventListener('click',addSticker); els.selectedSize.addEventListener('input',()=>{const item=getSelected(); if(!item) return; item.size=Number(els.selectedSize.value); renderPreview();}); els.selectedMotion.addEventListener('change',()=>{const item=getSelected(); if(!item) return; item.motion=els.selectedMotion.value; renderPreview();}); els.selectedTextValue.addEventListener('input',()=>{const item=getSelected(); if(!item||item.kind!=='text') return; item.value=els.selectedTextValue.value; renderPreview();}); els.deleteSelectedBtn.addEventListener('click',()=>{if(!state.selectedId) return; state.overlays=state.overlays.filter(item=>item.id!==state.selectedId); state.selectedId=null; renderAll();}); els.resetScratchBtn.addEventListener('click',initScratch);
-window.addEventListener('pointermove',(e)=>{ if(!state.drag) return; const item=state.overlays.find(it=>it.id===state.drag.id); if(!item) return; const dx=(e.clientX-state.drag.startX)/state.drag.width; const dy=(e.clientY-state.drag.startY)/state.drag.height; item.x=clamp(state.drag.baseX+dx,.05,.95); item.y=clamp(state.drag.baseY+dy,.05,.95); renderPreview(); renderSelectedEditor(); }); window.addEventListener('pointerup',()=>{state.drag=null;}); els.scratchCanvas.addEventListener('pointerdown',(e)=>scratchAt(e.clientX,e.clientY)); els.scratchCanvas.addEventListener('pointermove',(e)=>{if(e.buttons!==1) return; scratchAt(e.clientX,e.clientY);});
-const params=new URLSearchParams(location.search); if(params.get('selftest')==='1'){ state.capturedImage='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect width="100%" height="100%" fill="#d8ccbc"/><circle cx="300" cy="260" r="150" fill="#bde6ff"/><rect x="60" y="520" width="480" height="140" rx="28" fill="#ffd3e1"/></svg>'); state.mode='decorate'; setTimeout(()=>{ addText(); addSticker(); document.body.setAttribute('data-selftest', String(state.overlays.length)); }, 0); }
-renderAll();
-</script>
-<script>
-if('serviceWorker' in navigator && location.protocol !== 'file:'){ window.addEventListener('load', async ()=>{ try{ const regs=await navigator.serviceWorker.getRegistrations(); for(const reg of regs){ if(reg.active && !String(reg.active.scriptURL).includes('sw.js?v=9')){ await reg.unregister(); } } await navigator.serviceWorker.register('./sw.js?v=9',{updateViaCache:'none'}); }catch(err){ console.error(err); } }); }
+els.modeBtns.forEach(b=>b.addEventListener('click',()=>{ state.mode=b.dataset.mode; if(state.mode==='capture'&&!state.capturedImage) startVideoCamera(); renderAll(); }));
+els.tabBtns.forEach(b=>b.addEventListener('click',()=>{ state.activeTab=b.dataset.tab; renderTabs(); }));
+els.cameraBtn.addEventListener('click',()=>{ if(window.innerWidth<800){ els.cameraInput.click(); } else { if(state.stream&&els.video.videoWidth) captureFromVideo(); else startVideoCamera(); }});
+els.pickBtn.addEventListener('click',()=>els.imageInput.click()); els.openDataBtn.addEventListener('click',()=>els.dataInput.click()); els.saveImageBtn.addEventListener('click',saveImage); els.saveDataBtn.addEventListener('click',saveData); els.shareDataBtn.addEventListener('click',shareData); els.resetBtn.addEventListener('click',resetAll); els.addTextBtn.addEventListener('click',addText); els.addStickerBtn.addEventListener('click',addSticker); els.deleteSelectedBtn.addEventListener('click',deleteSelected); els.resetScratchBtn.addEventListener('click',initScratch);
+els.cameraInput.addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) readImageFile(f); e.target.value=''; });
+els.imageInput.addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) readImageFile(f); e.target.value=''; });
+els.dataInput.addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) openData(f); e.target.value=''; });
+els.selectedSize.addEventListener('input',()=>{ const item=selectedItem(); if(!item)return; item.size=Number(els.selectedSize.value); renderPreview(); });
+els.selectedMotion.addEventListener('change',()=>{ const item=selectedItem(); if(!item)return; item.motion=els.selectedMotion.value; renderPreview(); });
+els.selectedTextValue.addEventListener('input',()=>{ const item=selectedItem(); if(!item||item.kind!=='text')return; item.value=els.selectedTextValue.value; renderPreview(); });
+window.addEventListener('pointermove',e=>{ if(!state.drag)return; const item=state.overlays.find(x=>x.id===state.drag.id); if(!item)return; const dx=(e.clientX-state.drag.startX)/state.drag.w; const dy=(e.clientY-state.drag.startY)/state.drag.h; item.x=clamp(state.drag.baseX+dx,.05,.95); item.y=clamp(state.drag.baseY+dy,.05,.95); renderPreview(); renderSelected(); });
+window.addEventListener('pointerup',()=>{ state.drag=null; });
+els.scratchCanvas.addEventListener('pointerdown',e=>scratchAt(e.clientX,e.clientY)); els.scratchCanvas.addEventListener('pointermove',e=>{ if(e.buttons!==1) return; scratchAt(e.clientX,e.clientY); });
+window.addEventListener('resize',()=>{ if(state.mode==='open'&&state.openScene) initScratch(); });
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=10').catch(()=>{})); }
+renderAll(); startVideoCamera();
+})();
 </script>
 </body>
 </html>
