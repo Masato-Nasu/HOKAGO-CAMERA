@@ -99,6 +99,11 @@
       .layout{display:grid;grid-template-columns:420px 1fr;gap:16px}
     }
   </style>
+
+  <meta name="theme-color" content="#8f5e34" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body>
   <div class="app">
@@ -286,6 +291,21 @@
     els.scratchCanvas.addEventListener('pointermove',(e)=>{if(e.buttons!==1)return;scratchAt(e.clientX,e.clientY)});
     window.addEventListener('resize',renderAll);
     renderAll();
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+      window.addEventListener('load', async () => {
+        try {
+          const reg = await navigator.serviceWorker.register('./sw.js');
+          console.log('Service Worker registered', reg.scope);
+        } catch (err) {
+          console.error('Service Worker registration failed', err);
+        }
+      });
+    } else if (location.protocol === 'file:') {
+      console.warn('Service Worker is unavailable on file://. Use HTTPS or localhost.');
+    }
   </script>
 </body>
 </html>

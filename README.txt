@@ -1,7 +1,11 @@
-放課後CAMERA v3
+放課後CAMERA v4
 
-- index.html をブラウザで開いてください。
-- スマホでは「カメラで撮る」で端末カメラが開きます。
-- 撮影後は自動で「2 飾る」に移動します。
-- 画像として保存すると普通のPNGになります。
-- 「このアプリで開く用」は、このHTMLで再度開くためのデータです。
+追加:
+- Service Worker 登録
+- manifest.webmanifest 追加
+- sw.js 追加
+
+重要:
+- Service Worker は file:// では動きません。
+- HTTPS で公開するか、localhost で開いてください。
+- ZIPを展開して index.html を直接ダブルクリックしただけでは登録されません。
