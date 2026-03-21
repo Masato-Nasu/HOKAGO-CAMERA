@@ -1,11 +1,8 @@
-放課後CAMERA v4
+放課後CAMERA v5
 
-追加:
-- Service Worker 登録
-- manifest.webmanifest 追加
-- sw.js 追加
+- アイコンを追加しました
+- manifest に icon-192 / icon-512 を追加しました
+- index.html に favicon / apple-touch-icon を追加しました
 
-重要:
-- Service Worker は file:// では動きません。
-- HTTPS で公開するか、localhost で開いてください。
-- ZIPを展開して index.html を直接ダブルクリックしただけでは登録されません。
+ホーム画面にすでに追加済みの場合:
+一度古いショートカットを削除してから、もう一度「ホーム画面に追加」してください。
