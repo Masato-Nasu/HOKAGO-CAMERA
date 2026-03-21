@@ -28,14 +28,6 @@
 
 ## スクリーンショット
 
-リポジトリ直下に `screenshot1.png` を置く前提なら、README には次のように書けます。
-
-```md
-![放課後CAMERA screenshot](./screenshot1.png)
-```
-
-実際の表示例:
-
 ![放課後CAMERA screenshot](./screenshot1.png)
 
 ---
