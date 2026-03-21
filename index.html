@@ -161,7 +161,7 @@
             <button id="backToCaptureBtn" class="btn neutral">↺ 撮りなおす</button>
           </div>
           <details class="advanced" style="margin-top:10px">
-            <summary>相手に削って見せる用</summary>
+            <summary>このアプリで開く用</summary>
             <div class="advanced-body">
               <button id="saveSceneBtn" class="btn soft">💾 データを保存</button>
               <button id="shareBtn" class="btn soft">📤 データを送る</button>
@@ -223,7 +223,7 @@
             <button id="resetScratchBtn" class="btn neutral">↺ もう一度隠す</button>
           </div>
           <input id="sceneInput" type="file" accept=".revecam,application/json" class="hidden" />
-          <div class="helper" style="margin-top:10px">グレーの膜をなぞると、中の写真が見えてきます。受け取ったデータをここで開けます。</div>
+          <div class="helper" style="margin-top:10px">グレーの膜をなぞると、中の写真が見えてきます。</div>
         </div>
       </div>
     </div>
@@ -238,9 +238,8 @@
     function uid(){return `${Date.now()}-${Math.random().toString(36).slice(2,8)}`}
     function clamp(n,min,max){return Math.min(max,Math.max(min,n))}
     function fileBaseName(title){return (title||'retro-reveal').trim().replace(/[^a-zA-Z0-9ぁ-んァ-ヶ一-龯ー_-]+/g,'-').replace(/^-+|-+$/g,'')||'retro-reveal'}
-    function uniqueStamp(){const d=new Date();const pad=(n)=>String(n).padStart(2,'0');return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`};
-    function imageFileName(title){return `${fileBaseName(title)}-${uniqueStamp()}.png`}
-    function sceneFileName(title){return `${fileBaseName(title)}-${uniqueStamp()}.revecam`}
+    function stamp(){const d=new Date();const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`}
+    function sceneFileName(title){return `${fileBaseName(title)}.revecam`}
     function currentFilterCss(id){return(FILTERS.find(f=>f.id===id)||FILTERS[0]).css}
     function buildScene(){if(!state.capturedImage)return null;return{version:1,title:state.title,imageDataUrl:state.capturedImage,filter:state.filterId,overlays:state.overlays,createdAt:new Date().toISOString()}}
     function setNote(text,isError=false){const el=isError?els.cameraError:els.shareMessage;if(!text){el.classList.add('hidden');return}el.textContent=text;el.classList.remove('hidden')}
@@ -248,9 +247,9 @@
     function loadFile(file){const reader=new FileReader();reader.onload=()=>{state.capturedImage=String(reader.result||'');state.mode='decorate';renderAll()};reader.readAsDataURL(file)}
     function saveDataUrl(dataUrl,filename){const a=document.createElement('a');a.href=dataUrl;a.download=filename;a.click()}
     function loadImage(src){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=src})}
-    async function exportComposedImage(){const scene=buildScene();if(!scene)return;const baseImage=await loadImage(scene.imageDataUrl);const canvas=document.createElement('canvas');canvas.width=baseImage.naturalWidth||1080;canvas.height=baseImage.naturalHeight||1440;const ctx=canvas.getContext('2d');const previewWidth=320;const scale=canvas.width/previewWidth;ctx.filter=currentFilterCss(scene.filter);ctx.drawImage(baseImage,0,0,canvas.width,canvas.height);ctx.filter='none';ctx.textAlign='center';ctx.textBaseline='middle';scene.overlays.forEach(item=>{const x=item.x*canvas.width,y=item.y*canvas.height,size=item.size*scale;if(item.kind==='text'){ctx.save();ctx.font=`700 ${size}px Arial, sans-serif`;ctx.fillStyle=item.color;ctx.shadowColor='rgba(255,255,255,.72)';ctx.shadowBlur=Math.max(2,size*.08);ctx.fillText(item.value,x,y);ctx.restore()}else{ctx.save();ctx.font=`${size}px Arial, sans-serif`;ctx.fillText(item.value,x,y);ctx.restore()}});const filename=imageFileName(scene.title);saveDataUrl(canvas.toDataURL('image/png'),filename);setNote(`画像を保存しました: ${filename}`)}
-    function saveScene(){const scene=buildScene();if(!scene)return;const blob=new Blob([JSON.stringify(scene,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const filename=sceneFileName(scene.title);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);setNote(`データを保存しました: ${filename}`)}
-    async function shareScene(){const scene=buildScene();if(!scene)return;const filename=sceneFileName(scene.title);const file=new File([JSON.stringify(scene,null,2)],filename,{type:'application/json'});try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:scene.title,text:'このアプリで開く写真を送ります',files:[file]});setNote(`データを送る画面を開きました: ${filename}`)}else{setNote('この端末では直接送れないため、先に「データを保存」を使ってください。')}}catch(e){setNote('送信はキャンセルされました。')}}
+    async function exportComposedImage(){const scene=buildScene();if(!scene)return;const baseImage=await loadImage(scene.imageDataUrl);const canvas=document.createElement('canvas');canvas.width=baseImage.naturalWidth||1080;canvas.height=baseImage.naturalHeight||1440;const ctx=canvas.getContext('2d');const previewWidth=320;const scale=canvas.width/previewWidth;ctx.filter=currentFilterCss(scene.filter);ctx.drawImage(baseImage,0,0,canvas.width,canvas.height);ctx.filter='none';ctx.textAlign='center';ctx.textBaseline='middle';scene.overlays.forEach(item=>{const x=item.x*canvas.width,y=item.y*canvas.height,size=item.size*scale;if(item.kind==='text'){ctx.save();ctx.font=`700 ${size}px Arial, sans-serif`;ctx.fillStyle=item.color;ctx.shadowColor='rgba(255,255,255,.72)';ctx.shadowBlur=Math.max(2,size*.08);ctx.fillText(item.value,x,y);ctx.restore()}else{ctx.save();ctx.font=`${size}px Arial, sans-serif`;ctx.fillText(item.value,x,y);ctx.restore()}});const filename=`${fileBaseName(scene.title)}-${stamp()}.png`;saveDataUrl(canvas.toDataURL('image/png'),filename);setNote(`画像を保存しました: ${filename}`)}
+    function saveScene(){const scene=buildScene();if(!scene)return;const filename=`${fileBaseName(scene.title)}-${stamp()}.revecam`;const blob=new Blob([JSON.stringify(scene,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);setNote(`データを保存しました: ${filename}`)}
+    async function shareScene(){const scene=buildScene();if(!scene)return;const file=new File([JSON.stringify(scene,null,2)],sceneFileName(scene.title),{type:'application/json'});try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:scene.title,text:'このアプリで開く写真を送ります',files:[file]});setNote('データを送る画面を開きました。')}else{setNote('この端末では直接送れないため、先に「データを保存」を使ってください。')}}catch(e){setNote('送信はキャンセルされました。')}}
     function openSceneFile(file){const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(String(reader.result||''));if(!parsed.imageDataUrl||!Array.isArray(parsed.overlays))throw new Error('invalid');state.openScene=parsed;state.mode='open';renderAll()}catch(e){setNote('受け取ったデータを読み込めませんでした。')}};reader.readAsText(file)}
     function renderColorChips(root,selectedColor,onSelect){root.innerHTML='';PASTELS.forEach(color=>{const btn=document.createElement('button');btn.className='color-chip'+(selectedColor===color?' active':'');btn.style.background=color;btn.addEventListener('click',()=>onSelect(color));root.appendChild(btn)})}
     function renderStickerChips(){els.stickerChips.innerHTML='';STICKERS.forEach(sticker=>{const btn=document.createElement('button');btn.className='sticker-chip'+(state.selectedSticker===sticker?' active':'');btn.textContent=sticker;btn.style.fontSize='26px';btn.addEventListener('click',()=>{state.selectedSticker=sticker;renderStickerChips()});els.stickerChips.appendChild(btn)})}
@@ -301,7 +300,7 @@
     if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       window.addEventListener('load', async () => {
         try {
-          const reg = await navigator.serviceWorker.register('./sw.js');
+          const reg = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
           console.log('Service Worker registered', reg.scope);
         } catch (err) {
           console.error('Service Worker registration failed', err);

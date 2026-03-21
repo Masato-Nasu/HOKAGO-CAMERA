@@ -1,11 +1,10 @@
-放課後CAMERA v5
+放課後CAMERA stable v8
 
-- アイコンを追加しました
-- manifest に icon-192 / icon-512 を追加しました
-- index.html に favicon / apple-touch-icon を追加しました
+- 文字追加 / スタンプ追加 / 受け取ったデータを開く を、最後に安定していた版ベースで維持
+- 保存ファイル名を日時付きに変更
+- PWAキャッシュを更新しやすいよう service worker を調整
 
-ホーム画面にすでに追加済みの場合:
-一度古いショートカットを削除してから、もう一度「ホーム画面に追加」してください。
-
-
-Update: v7 fixed uses the stable v5 base and adds unique filenames plus clearer wording.
+反映が変な場合:
+1) 古いホーム画面アイコンを削除
+2) ブラウザ履歴から再読込
+3) もう一度ホーム画面に追加
