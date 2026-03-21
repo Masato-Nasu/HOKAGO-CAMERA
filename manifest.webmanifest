@@ -1,6 +1,6 @@
 {
-  "name": "放課後CAMERA",
-  "short_name": "放課後CAMERA",
+  "name": "放課後カメラ",
+  "short_name": "放課後カメラ",
   "start_url": "./index.html?v=11",
   "display": "standalone",
   "background_color": "#efe7db",
