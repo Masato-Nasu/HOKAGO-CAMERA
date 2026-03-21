@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#9b6a3d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Retro Reveal" />
+  <title>Retro Reveal Camera</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Retro Reveal Camera</p>
+        <h1>撮って、飾って、削ってひらく。</h1>
+      </div>
+      <div class="header-actions">
+        <button id="installBtn" class="btn small subtle hidden">アプリをインストール</button>
+        <div class="mode-tabs">
+          <button class="active" data-mode-btn="capture">1 撮る</button>
+          <button data-mode-btn="decorate">2 飾る</button>
+          <button data-mode-btn="open">3 ひらく</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="camera-shell">
+        <div class="camera-body">
+          <div class="camera-head">
+            <div class="slot"></div>
+            <div class="head-right">
+              <div class="light"></div>
+              <div class="dial"></div>
+            </div>
+          </div>
+
+          <div class="camera-front">
+            <div class="lens-left"></div>
+            <div class="lens-right"></div>
+
+            <div class="film-card">
+              <div class="screen-pad">
+                <div id="stage" class="stage">
+                  <video id="video" class="media" playsinline muted autoplay></video>
+                  <img id="previewImage" class="media hidden" alt="preview" />
+                  <div id="overlayLayer" class="message-layer hidden"></div>
+                  <canvas id="scratchCanvas" class="scratch hidden"></canvas>
+                  <div id="scratchLabel" class="scratch-label hidden">SCRATCH TO REVEAL</div>
+                  <div id="placeholder" class="placeholder">
+                    写真を撮るか、画像を読み込むとここにインスタント写真が出ます。
+                  </div>
+                </div>
+              </div>
+              <div class="card-title">
+                <input id="titleInput" value="放課後のひみつ" />
+                <p>instant memory object</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="side">
+        <div class="panel">
+          <div class="section-head"><span>✦</span><h2>操作</h2></div>
+          <div class="ops">
+            <button id="captureBtn" class="btn primary">📷 写真を撮る</button>
+            <button id="pickImageBtn" class="btn soft">🖼️ 写真を選ぶ</button>
+            <button id="saveBtn" class="btn gold">⬇️ 画像で保存</button>
+            <button id="saveSceneBtn" class="btn gold2">💾 このアプリで開く用に保存</button>
+            <button id="shareBtn" class="btn gold2">📤 このアプリで開く用を送る</button>
+            <button id="openBtn" class="btn mint">📂 このアプリ用を開く</button>
+            <button id="resetBtn" class="btn neutral">↺ 撮りなおす</button>
+          </div>
+          <input id="imageInput" type="file" accept="image/*" hidden />
+          <input id="sceneInput" type="file" accept=".revecam,application/json" hidden />
+          <div class="tip">
+            ふつうの画像として送りたいときは「画像で保存」。
+            このアプリで削って開いてほしいときは「このアプリで開く用に保存」か「このアプリで開く用を送る」です。
+          </div>
+          <div id="cameraError" class="note error hidden"></div>
+          <div id="shareMessage" class="note hidden"></div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head"><span>✎</span><h2>文字</h2></div>
+          <input id="textDraft" class="field" value="for you" placeholder="メッセージを入力" />
+          <div class="space-top">
+            <p class="sub">Pastel Colors</p>
+            <div id="colorChips" class="chips"></div>
+          </div>
+          <div class="row2 space-top">
+            <label>
+              <p class="sub">サイズ</p>
+              <input id="textSize" type="range" min="18" max="52" value="30" />
+            </label>
+            <label>
+              <p class="sub">アニメ</p>
+              <select id="textMotion" class="field">
+                <option value="none">なし</option>
+                <option value="float">ふわふわ</option>
+                <option value="pop">ぷるん</option>
+                <option value="shimmer">きらっ</option>
+                <option value="fade" selected>じわっ</option>
+              </select>
+            </label>
+          </div>
+          <button id="addTextBtn" class="btn pink fill">文字を追加</button>
+        </div>
+
+        <div class="panel">
+          <div class="section-head"><span>❀</span><h2>スタンプ & フィルター</h2></div>
+          <div>
+            <p class="sub">Stickers</p>
+            <div id="stickerChips" class="chips"></div>
+          </div>
+          <div class="row2 space-top">
+            <label>
+              <p class="sub">スタンプサイズ</p>
+              <input id="stickerSize" type="range" min="26" max="80" value="42" />
+            </label>
+            <label>
+              <p class="sub">アニメ</p>
+              <select id="stickerMotion" class="field">
+                <option value="none">なし</option>
+                <option value="float" selected>ふわふわ</option>
+                <option value="pop">ぷるん</option>
+                <option value="shimmer">きらっ</option>
+                <option value="fade">じわっ</option>
+              </select>
+            </label>
+          </div>
+          <button id="addStickerBtn" class="btn mint fill">スタンプを追加</button>
+          <div class="space-top">
+            <p class="sub">Filters</p>
+            <div id="filterChips" class="filters"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head selected-head">
+            <div>
+              <h2>選択中のアイテム</h2>
+              <div class="help">ドラッグで位置を変えられます。</div>
+            </div>
+            <button id="deleteSelectedBtn" class="btn delete">🗑 削除</button>
+          </div>
+
+          <div id="selectedEmpty" class="selected-empty">
+            文字かスタンプを追加して選ぶと、ここでサイズや動きを変えられます。
+          </div>
+
+          <div id="selectedEditor" class="hidden">
+            <div class="row2">
+              <label>
+                <p class="sub">サイズ</p>
+                <input id="selectedSize" type="range" min="18" max="52" value="30" />
+              </label>
+              <label>
+                <p class="sub">アニメ</p>
+                <select id="selectedMotion" class="field">
+                  <option value="none">なし</option>
+                  <option value="float">ふわふわ</option>
+                  <option value="pop">ぷるん</option>
+                  <option value="shimmer">きらっ</option>
+                  <option value="fade">じわっ</option>
+                </select>
+              </label>
+            </div>
+
+            <div id="selectedTextFields" class="space-top">
+              <label>
+                <p class="sub">文字内容</p>
+                <input id="selectedTextValue" class="field" value="" />
+              </label>
+              <div class="space-top">
+                <p class="sub">文字色</p>
+                <div id="selectedColorChips" class="chips"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="openPanel" class="panel hidden">
+          <div class="section-head selected-head">
+            <div>
+              <h2>ひらく体験</h2>
+              <div class="help">グレーの膜をなぞると、中の写真が見えてきます。</div>
+            </div>
+            <button id="resetScratchBtn" class="btn neutral">もう一度隠す</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
