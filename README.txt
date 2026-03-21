@@ -8,6 +8,4 @@
 一度古いショートカットを削除してから、もう一度「ホーム画面に追加」してください。
 
 
-【v6の変更】
-- 画像保存と『ひらく用』保存のファイル名に日時を付与しました。
-- 同じタイトルでも上書きされにくくなっています。
+Update: v7 fixed uses the stable v5 base and adds unique filenames plus clearer wording.
