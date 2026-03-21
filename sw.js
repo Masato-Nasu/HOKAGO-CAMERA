@@ -1,30 +1,10 @@
-const CACHE_NAME = 'houkago-camera-v8-stable';
-const ASSETS = ['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./apple-touch-icon.png','./favicon-32.png'];
-self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
-});
-self.addEventListener('activate', (event) => {
-  event.waitUntil((async () => {
-    const keys = await caches.keys();
-    await Promise.all(keys.map((key) => key !== CACHE_NAME ? caches.delete(key) : Promise.resolve()));
-    await self.clients.claim();
-  })());
-});
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  const url = new URL(event.request.url);
-  if (url.origin === self.location.origin) {
-    event.respondWith((async () => {
-      try {
-        const fresh = await fetch(event.request, { cache: 'no-store' });
-        const cache = await caches.open(CACHE_NAME);
-        cache.put(event.request, fresh.clone());
-        return fresh;
-      } catch (err) {
-        const cached = await caches.match(event.request);
-        if (cached) return cached;
-        return caches.match('./index.html');
-      }
-    })());
-  }
+const CACHE_NAME='hokago-camera-v9';
+const CORE=['./','./index.html?v=9','./manifest.webmanifest?v=9','./icon-192.png?v=9','./icon-512.png?v=9','./apple-touch-icon.png?v=9','./favicon-32.png?v=9'];
+self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting()));});
+self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
+self.addEventListener('fetch',event=>{
+  const req=event.request;
+  if(req.method!=='GET') return;
+  if(new URL(req.url).origin!==location.origin) return;
+  event.respondWith(fetch(req).then(res=>{const copy=res.clone();caches.open(CACHE_NAME).then(cache=>cache.put(req,copy));return res;}).catch(()=>caches.match(req).then(r=>r||caches.match('./index.html?v=9'))));
 });
