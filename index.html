@@ -141,7 +141,7 @@
         <div id="panel-actions" class="panel tab-panel active">
           <h2>操作</h2>
           <div class="quick-actions">
-            <button id="captureBtn" class="btn primary">📷 写真を撮る</button>
+            <button id="captureBtn" class="btn primary">📷 カメラを起動</button>
             <button id="pickImageBtn" class="btn soft">🖼️ 写真を選ぶ</button>
             <button id="saveBtn" class="btn gold">⬇️ 画像で保存</button>
             <button id="openBtn" class="btn mint">📂 ひらく用を開く</button>
@@ -152,8 +152,9 @@
             <button id="resetBtn" class="btn neutral" style="grid-column:1 / -1">↺ 撮りなおす</button>
           </div>
           <input id="imageInput" type="file" accept="image/*" class="hidden" />
+          <input id="cameraInput" type="file" accept="image/*" capture="environment" class="hidden" />
           <input id="sceneInput" type="file" accept=".revecam,application/json" class="hidden" />
-          <div class="helper">普段は「画像で保存」だけ使えば十分です。相手にもこのアプリで開かせたいときだけ「ひらく用」を使います。</div>
+          <div class="helper">スマホでは「カメラを起動」を押すと端末カメラが開きます。普段は「画像で保存」だけ使えば十分です。相手にもこのアプリで開かせたいときだけ「ひらく用」を使います。</div>
           <div id="cameraError" class="helper error hidden"></div>
           <div id="shareMessage" class="helper hidden"></div>
         </div>
@@ -230,7 +231,7 @@
     const PASTELS=['#F9B7D1','#FFC6A8','#FFD96A','#FFF3B4','#D6F5B0','#B7F0D0','#BDEBFF','#BFCBFF','#DCC8FF','#F4C8FF','#FFFFFF','#F4EEE7'];
     const STICKERS=['💗','✨','🎀','🌼','☁️','🍓','🫧','⭐','🐰','🧸','🌙','💌'];
 
-    const els={video:document.getElementById('video'),previewImage:document.getElementById('previewImage'),overlayLayer:document.getElementById('overlayLayer'),scratchCanvas:document.getElementById('scratchCanvas'),scratchLabel:document.getElementById('scratchLabel'),placeholder:document.getElementById('placeholder'),stage:document.getElementById('stage'),modeBtns:[...document.querySelectorAll('[data-mode-btn]')],tabBtns:[...document.querySelectorAll('[data-tab-btn]')],titleInput:document.getElementById('titleInput'),captureBtn:document.getElementById('captureBtn'),pickImageBtn:document.getElementById('pickImageBtn'),saveBtn:document.getElementById('saveBtn'),saveSceneBtn:document.getElementById('saveSceneBtn'),shareBtn:document.getElementById('shareBtn'),openBtn:document.getElementById('openBtn'),resetBtn:document.getElementById('resetBtn'),imageInput:document.getElementById('imageInput'),sceneInput:document.getElementById('sceneInput'),cameraError:document.getElementById('cameraError'),shareMessage:document.getElementById('shareMessage'),textDraft:document.getElementById('textDraft'),textSize:document.getElementById('textSize'),textMotion:document.getElementById('textMotion'),colorChips:document.getElementById('colorChips'),addTextBtn:document.getElementById('addTextBtn'),stickerChips:document.getElementById('stickerChips'),stickerSize:document.getElementById('stickerSize'),stickerMotion:document.getElementById('stickerMotion'),addStickerBtn:document.getElementById('addStickerBtn'),filterChips:document.getElementById('filterChips'),selectedEmpty:document.getElementById('selectedEmpty'),selectedEditor:document.getElementById('selectedEditor'),selectedSize:document.getElementById('selectedSize'),selectedMotion:document.getElementById('selectedMotion'),selectedTextFields:document.getElementById('selectedTextFields'),selectedTextValue:document.getElementById('selectedTextValue'),selectedColorChips:document.getElementById('selectedColorChips'),deleteSelectedBtn:document.getElementById('deleteSelectedBtn'),panelActions:document.getElementById('panel-actions'),panelText:document.getElementById('panel-text'),panelSticker:document.getElementById('panel-sticker'),panelSelected:document.getElementById('panel-selected'),panelOpen:document.getElementById('panel-open'),resetScratchBtn:document.getElementById('resetScratchBtn')};
+    const els={video:document.getElementById('video'),previewImage:document.getElementById('previewImage'),overlayLayer:document.getElementById('overlayLayer'),scratchCanvas:document.getElementById('scratchCanvas'),scratchLabel:document.getElementById('scratchLabel'),placeholder:document.getElementById('placeholder'),stage:document.getElementById('stage'),modeBtns:[...document.querySelectorAll('[data-mode-btn]')],tabBtns:[...document.querySelectorAll('[data-tab-btn]')],titleInput:document.getElementById('titleInput'),captureBtn:document.getElementById('captureBtn'),pickImageBtn:document.getElementById('pickImageBtn'),saveBtn:document.getElementById('saveBtn'),saveSceneBtn:document.getElementById('saveSceneBtn'),shareBtn:document.getElementById('shareBtn'),openBtn:document.getElementById('openBtn'),resetBtn:document.getElementById('resetBtn'),imageInput:document.getElementById('imageInput'),cameraInput:document.getElementById('cameraInput'),sceneInput:document.getElementById('sceneInput'),cameraError:document.getElementById('cameraError'),shareMessage:document.getElementById('shareMessage'),textDraft:document.getElementById('textDraft'),textSize:document.getElementById('textSize'),textMotion:document.getElementById('textMotion'),colorChips:document.getElementById('colorChips'),addTextBtn:document.getElementById('addTextBtn'),stickerChips:document.getElementById('stickerChips'),stickerSize:document.getElementById('stickerSize'),stickerMotion:document.getElementById('stickerMotion'),addStickerBtn:document.getElementById('addStickerBtn'),filterChips:document.getElementById('filterChips'),selectedEmpty:document.getElementById('selectedEmpty'),selectedEditor:document.getElementById('selectedEditor'),selectedSize:document.getElementById('selectedSize'),selectedMotion:document.getElementById('selectedMotion'),selectedTextFields:document.getElementById('selectedTextFields'),selectedTextValue:document.getElementById('selectedTextValue'),selectedColorChips:document.getElementById('selectedColorChips'),deleteSelectedBtn:document.getElementById('deleteSelectedBtn'),panelActions:document.getElementById('panel-actions'),panelText:document.getElementById('panel-text'),panelSticker:document.getElementById('panel-sticker'),panelSelected:document.getElementById('panel-selected'),panelOpen:document.getElementById('panel-open'),resetScratchBtn:document.getElementById('resetScratchBtn')};
     const state={mode:'capture',activeTab:'actions',stream:null,capturedImage:'',filterId:'soft',title:'放課後のひみつ',overlays:[],selectedId:null,selectedColor:PASTELS[0],selectedSticker:STICKERS[0],openScene:null,drag:null};
 
     function uid(){return `${Date.now()}-${Math.random().toString(36).slice(2,8)}`}
@@ -269,16 +270,25 @@
 
     function renderTabs(){const map={actions:els.panelActions,text:els.panelText,sticker:els.panelSticker,selected:els.panelSelected};Object.entries(map).forEach(([key,panel])=>panel.classList.toggle('active',state.activeTab===key));els.tabBtns.forEach(btn=>btn.classList.toggle('active',btn.dataset.tabBtn===state.activeTab))}
     function updateModeButtons(){els.modeBtns.forEach(btn=>btn.classList.toggle('active',btn.dataset.modeBtn===state.mode))}
-    function renderPreview(){const modeOpen=state.mode==='open';const hasCaptured=!!state.capturedImage;els.video.classList.toggle('hidden',!(state.mode==='capture'&&!hasCaptured));els.previewImage.classList.add('hidden');els.overlayLayer.classList.add('hidden');els.scratchCanvas.classList.add('hidden');els.scratchLabel.classList.add('hidden');els.placeholder.classList.add('hidden');els.panelOpen.classList.toggle('hidden',!(modeOpen&&state.openScene));if(state.mode==='capture'&&!hasCaptured){if(!state.stream)startCamera();if(!state.stream)els.placeholder.classList.remove('hidden');return}if(modeOpen){if(!state.openScene){els.placeholder.classList.remove('hidden');els.placeholder.textContent='ひらく用データを選ぶと、ここで削って見られます。';return}els.previewImage.src=state.openScene.imageDataUrl;els.previewImage.style.filter=currentFilterCss(state.openScene.filter);els.previewImage.classList.remove('hidden');renderOverlayLayer(state.openScene.overlays,false);els.scratchCanvas.classList.remove('hidden');els.scratchLabel.classList.remove('hidden');setTimeout(initScratch,0);return}if(hasCaptured){els.previewImage.src=state.capturedImage;els.previewImage.style.filter=currentFilterCss(state.filterId);els.previewImage.classList.remove('hidden');renderOverlayLayer(state.overlays,true);return}els.placeholder.classList.remove('hidden')}
+    function renderPreview(){const modeOpen=state.mode==='open';const hasCaptured=!!state.capturedImage;els.video.classList.toggle('hidden',!(state.mode==='capture'&&!hasCaptured));els.previewImage.classList.add('hidden');els.overlayLayer.classList.add('hidden');els.scratchCanvas.classList.add('hidden');els.scratchLabel.classList.add('hidden');els.placeholder.classList.add('hidden');els.panelOpen.classList.toggle('hidden',!(modeOpen&&state.openScene));if(state.mode==='capture'&&!hasCaptured){if(!state.stream && window.innerWidth > 700)startCamera();if(!state.stream && window.innerWidth > 700)els.placeholder.classList.remove('hidden');return}if(modeOpen){if(!state.openScene){els.placeholder.classList.remove('hidden');els.placeholder.textContent='ひらく用データを選ぶと、ここで削って見られます。';return}els.previewImage.src=state.openScene.imageDataUrl;els.previewImage.style.filter=currentFilterCss(state.openScene.filter);els.previewImage.classList.remove('hidden');renderOverlayLayer(state.openScene.overlays,false);els.scratchCanvas.classList.remove('hidden');els.scratchLabel.classList.remove('hidden');setTimeout(initScratch,0);return}if(hasCaptured){els.previewImage.src=state.capturedImage;els.previewImage.style.filter=currentFilterCss(state.filterId);els.previewImage.classList.remove('hidden');renderOverlayLayer(state.overlays,true);return}els.placeholder.classList.remove('hidden')}
     function renderButtons(){const canDecorate=!!state.capturedImage;[els.saveBtn,els.saveSceneBtn,els.shareBtn,els.addTextBtn,els.addStickerBtn].forEach(btn=>btn.disabled=!canDecorate)}
     function renderAll(){state.title=els.titleInput.value;updateModeButtons();renderTabs();renderButtons();renderPreview();renderSelectedEditor()}
 
     function rerenderMainColors(){renderColorChips(els.colorChips,state.selectedColor,(color)=>{state.selectedColor=color;rerenderMainColors()})}
     rerenderMainColors();renderStickerChips();renderFilterChips();
-    els.modeBtns.forEach(btn=>btn.addEventListener('click',()=>{state.mode=btn.dataset.modeBtn;if(state.mode==='capture'&&!state.capturedImage)startCamera();renderAll()}));
+    els.modeBtns.forEach(btn=>btn.addEventListener('click',()=>{state.mode=btn.dataset.modeBtn;if(state.mode==='capture'&&!state.capturedImage&&window.innerWidth>700)startCamera();renderAll()}));
     els.tabBtns.forEach(btn=>btn.addEventListener('click',()=>{state.activeTab=btn.dataset.tabBtn;renderTabs()}));
-    els.captureBtn.addEventListener('click',captureFromCamera);els.pickImageBtn.addEventListener('click',()=>els.imageInput.click());els.openBtn.addEventListener('click',()=>els.sceneInput.click());els.resetBtn.addEventListener('click',resetAll);els.saveBtn.addEventListener('click',exportComposedImage);els.saveSceneBtn.addEventListener('click',saveScene);els.shareBtn.addEventListener('click',shareScene);els.addTextBtn.addEventListener('click',addText);els.addStickerBtn.addEventListener('click',addSticker);
+    els.captureBtn.addEventListener('click',()=>{ if(window.innerWidth <= 700){ els.cameraInput.click(); } else { captureFromCamera(); } });
+    els.pickImageBtn.addEventListener('click',()=>els.imageInput.click());
+    els.openBtn.addEventListener('click',()=>els.sceneInput.click());
+    els.resetBtn.addEventListener('click',resetAll);
+    els.saveBtn.addEventListener('click',exportComposedImage);
+    els.saveSceneBtn.addEventListener('click',saveScene);
+    els.shareBtn.addEventListener('click',shareScene);
+    els.addTextBtn.addEventListener('click',addText);
+    els.addStickerBtn.addEventListener('click',addSticker);
     els.imageInput.addEventListener('change',(e)=>{const file=e.target.files&&e.target.files[0];if(file)readImageFile(file);e.target.value=''});
+    els.cameraInput.addEventListener('change',(e)=>{const file=e.target.files&&e.target.files[0];if(file)readImageFile(file);e.target.value=''});
     els.sceneInput.addEventListener('change',(e)=>{const file=e.target.files&&e.target.files[0];if(file)openSceneFile(file);e.target.value=''});
     els.selectedSize.addEventListener('input',()=>{const item=getSelected();if(!item)return;item.size=Number(els.selectedSize.value);renderPreview()});
     els.selectedMotion.addEventListener('change',()=>{const item=getSelected();if(!item)return;item.motion=els.selectedMotion.value;renderPreview()});
@@ -290,7 +300,7 @@
     els.scratchCanvas.addEventListener('pointerdown',(e)=>scratchAt(e.clientX,e.clientY));
     els.scratchCanvas.addEventListener('pointermove',(e)=>{if(e.buttons!==1)return;scratchAt(e.clientX,e.clientY)});
     window.addEventListener('resize',renderAll);
-    renderAll();startCamera();
+    renderAll();if(window.innerWidth>700)startCamera();
   </script>
 </body>
 </html>
