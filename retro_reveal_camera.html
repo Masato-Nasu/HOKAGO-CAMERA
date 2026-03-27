@@ -188,7 +188,7 @@
             <button id="resetBtn" class="btn neutral" style="grid-column:1 / -1">↺ 撮りなおす</button>
           </div>
           <input id="imageInput" type="file" accept="image/*" class="hidden" />
-          <input id="sceneInput" type="file" accept=".revecam,application/json" class="hidden" />
+          <input id="sceneInput" type="file" accept=".json,.revecam,application/json,text/plain" class="hidden" />
           <div class="helper">ふつうに送りたいなら「画像で保存」。このアプリで削って開いてほしいときだけ「共有データを保存 / 共有で送る」を使います。</div>
           <div id="cameraError" class="helper error hidden"></div>
           <div id="shareMessage" class="helper hidden"></div>
@@ -317,8 +317,8 @@
       saveDataUrl(canvas.toDataURL('image/png'), `${fileBaseName(scene.title)}.png`);
       setNote(`画像で保存しました: ${fileBaseName(scene.title)}.png`);
     }
-    function saveScene(){ const scene=buildScene(); if(!scene) return; const blob=new Blob([JSON.stringify(scene,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=sceneFileName(scene.title); a.click(); URL.revokeObjectURL(url); setNote(`共有データを保存しました: ${sceneFileName(scene.title)}`); }
-    async function shareScene(){ const scene=buildScene(); if(!scene) return; const file=new File([JSON.stringify(scene,null,2)],sceneFileName(scene.title),{type:'application/json'}); try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({ title:scene.title, text:'このアプリで開ける共有データです', files:[file] }); setNote('共有画面を開きました。'); } else { setNote('この端末では直接共有できないため、先に「共有データを保存」を使ってください。'); } } catch(e){ setNote('送信はキャンセルされました。'); } }
+    async function saveScene(){ const scene=await buildTransferScene(); if(!scene) return; const filename=sceneFileName(scene.title); const blob=new Blob([JSON.stringify(scene,null,2)],{type:'application/json'}); downloadBlob(blob,filename); setNote(`共有データを保存しました: ${filename}`); }
+    async function shareScene(){ const scene=await buildTransferScene(); if(!scene) return; const file=new File([JSON.stringify(scene,null,2)],sceneFileName(scene.title),{type:'application/json'}); try{ const canShareFiles=!!(navigator.canShare && navigator.canShare({files:[file]})); if(!canShareFiles){ setNote('この端末ではファイル共有に対応していないため、先に「共有データを保存」を使ってください。'); return; } await navigator.share({ title:scene.title, text:'このアプリで開ける共有データです', files:[file] }); setNote('共有画面を開きました。'); } catch(e){ console.error('shareScene failed', e); if(e && e.name==='AbortError'){ setNote('共有を閉じました。'); return; } setNote('直接共有できませんでした。先に「共有データを保存」で保存した .json ファイルを送ってください。'); } }
     function openSceneFile(file){ const reader=new FileReader(); reader.onload=()=>{ try{ const parsed=JSON.parse(String(reader.result||'')); if(!parsed.imageDataUrl || !Array.isArray(parsed.overlays)) throw new Error('invalid'); state.openScene=parsed; state.mode='open'; renderAll(); }catch(e){ setNote('共有データを読み込めませんでした。'); } }; reader.readAsText(file); }
 
     function renderColorChips(root, selectedColor, onSelect){ root.innerHTML=''; PASTELS.forEach(color=>{ const btn=document.createElement('button'); btn.className='color-chip'+(selectedColor===color?' active':''); btn.style.background=color; btn.addEventListener('click',()=>onSelect(color)); root.appendChild(btn); }); }
