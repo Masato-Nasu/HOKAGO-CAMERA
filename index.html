@@ -18,7 +18,7 @@
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--ink)}
     button,input,select{font:inherit}
-    .app{max-width:980px;margin:0 auto;padding:12px 12px 110px;display:grid;gap:14px}
+    .app{max-width:980px;margin:0 auto;padding:12px 12px 170px;display:grid;gap:14px}
     .top{background:var(--brown);color:#fff8ee;border-radius:24px;padding:14px 16px;box-shadow:0 12px 30px rgba(0,0,0,.12)}
     .eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#f6e0c3}
     h1{margin:6px 0 0;font-size:20px;line-height:1.15}
@@ -66,8 +66,8 @@
     @keyframes shimmer{0%{transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 0 0 rgba(255,255,255,0))}50%{transform:translate(-50%,-50%) scale(1.03);filter:drop-shadow(0 0 12px rgba(255,255,255,.45))}100%{transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 0 0 rgba(255,255,255,0))}}
     @keyframes fade{from{opacity:0;transform:translate(-50%,-50%) translateY(10px)}to{opacity:1;transform:translate(-50%,-50%) translateY(0)}}
     .tabPanel{display:none}.tabPanel.active{display:block}
-    .dock{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:20;background:transparent;backdrop-filter:none;border-radius:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;box-shadow:none}
-    .dock button{border:none;border-radius:18px;background:rgba(69,48,31,.92);color:#fff5e5;padding:12px 6px;font-weight:700;cursor:pointer;box-shadow:0 10px 22px rgba(0,0,0,.18)}.dock button.active{background:#f7efe2;color:#5d3b20;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+    .dock{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:20;background:transparent;backdrop-filter:none;border-radius:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;box-shadow:none;pointer-events:none}
+    .dock button{border:none;border-radius:18px;background:rgba(69,48,31,.92);color:#fff5e5;padding:12px 6px;font-weight:700;cursor:pointer;box-shadow:0 10px 22px rgba(0,0,0,.18);pointer-events:auto}.dock button.active{background:#f7efe2;color:#5d3b20;box-shadow:0 10px 22px rgba(0,0,0,.12)}
     @media (min-width: 800px){.app{max-width:980px;padding-bottom:18px}.layout{grid-template-columns:430px 1fr}.dock{position:static;background:transparent;backdrop-filter:none;box-shadow:none;padding:0;display:flex;gap:10px}.dock button{background:#e3d5c3;color:#65472f;flex:1;box-shadow:none}.dock button.active{background:#7f5330;color:#fff7ea;box-shadow:none}}
   </style>
 </head>
@@ -97,25 +97,25 @@
         <div id="filterName" class="filterName">ふんわり</div>
         <button id="filterNextBtn" class="filterCtl" type="button">▶</button>
       </div>
-      <div class="title"><input id="titleInput" value="放課後カメラ" /><p>after school memory</p></div>
+      <div class="title"><input id="titleInput" value="放課後カメラ" /><p>decorate &amp; reveal</p></div>
     </div></div></div>
     <div class="stack">
       <div id="panel-actions" class="panel tabPanel active">
         <h2>操作</h2>
         <div class="grid2">
-          <button id="cameraBtn" class="btn primary">📷 カメラで撮る</button>
-          <button id="pickBtn" class="btn soft">🖼️ 写真を選ぶ</button>
-          <button id="saveImageBtn" class="btn gold">⬇️ 画像で保存</button>
-          <button id="openDataBtn" class="btn mint">📂 データを開く</button>
-          <button id="saveDataBtn" class="btn soft">💾 データを保存</button>
-          <button id="shareDataBtn" class="btn soft">📤 データを送る</button>
+          <button id="cameraBtn" class="btn primary" type="button">📷 カメラで撮る</button>
+          <button id="pickBtn" class="btn soft" type="button">🖼️ 写真を選ぶ</button>
+          <button id="saveImageBtn" class="btn gold" type="button">⬇️ 画像で保存</button>
+          <button id="openDataBtn" class="btn mint" type="button">📂 共有データを開く</button>
+          <button id="saveDataBtn" class="btn soft" type="button">💾 共有データを保存</button>
+          <button id="shareDataBtn" class="btn soft" type="button">📤 共有で送る</button>
         </div>
-        <button id="resetBtn" class="btn neutral soloBtn" style="width:100%">↺ 撮りなおす</button>
+        <button id="resetBtn" class="btn neutral soloBtn" style="width:100%" type="button">↺ 撮りなおす</button>
         <input id="cameraInput" type="file" accept="image/*" capture="environment" class="hidden" />
         <input id="imageInput" type="file" accept="image/*" class="hidden" />
         <input id="dataInput" type="file" accept=".hokago,application/json" class="hidden" />
         <div class="noteStack">
-          <div class="help">普段は「画像で保存」だけ使えば十分です。相手にもこのアプリで開いてほしいときだけ「データを保存 / 送る」を使います。</div>
+          <div class="help">普段は「画像で保存」だけで十分です。相手にもこのアプリで開いてほしいときだけ「共有データを保存 / 共有で送る」を使います。</div>
           <div id="msgError" class="help error hidden"></div>
           <div id="msgInfo" class="help hidden"></div>
         </div>
@@ -189,10 +189,10 @@ function dataFileName(){return `${safeName(els.titleInput.value)}-${nowStamp()}.
 function imageFileName(){return `${safeName(els.titleInput.value)}-${nowStamp()}.png`}
 function selectedItem(){return state.overlays.find(x=>x.id===state.selectedId)||null}
 function setMessage(text,type='info'){const info=els.msgInfo, err=els.msgError; info.classList.add('hidden'); err.classList.add('hidden'); if(!text)return; (type==='error'?err:info).textContent=text; (type==='error'?err:info).classList.remove('hidden')}
-function buildScene(){if(!state.capturedImage)return null;return {version:13,title:els.titleInput.value,imageDataUrl:state.capturedImage,filter:state.filterId,overlays:state.overlays,createdAt:new Date().toISOString()}}
+function buildScene(){if(!state.capturedImage){setMessage('先に写真を撮るか、写真を選んでください。','error');return null}return {version:13,title:els.titleInput.value,imageDataUrl:state.capturedImage,filter:state.filterId,overlays:state.overlays,createdAt:new Date().toISOString()}}
 function renderTabs(){const panels={actions:els.panelActions,text:els.panelText,sticker:els.panelSticker,selected:els.panelSelected};Object.entries(panels).forEach(([k,p])=>p.classList.toggle('active',state.activeTab===k));els.tabBtns.forEach(b=>b.classList.toggle('active',b.dataset.tab===state.activeTab))}
 function renderModes(){els.modeBtns.forEach(b=>b.classList.toggle('active',b.dataset.mode===state.mode))}
-function renderButtons(){const on=!!state.capturedImage;[els.saveImageBtn,els.saveDataBtn,els.shareDataBtn,els.addTextBtn,els.addStickerBtn].forEach(b=>b.disabled=!on)}
+function renderButtons(){const on=!!state.capturedImage;[els.addTextBtn,els.addStickerBtn].forEach(b=>b.disabled=!on);[els.saveImageBtn,els.saveDataBtn,els.shareDataBtn].forEach(b=>b.disabled=false)}
 function renderColorChips(root,current,onSelect){root.innerHTML='';PASTELS.forEach(c=>{const b=document.createElement('button');b.className='colorChip'+(c===current?' active':'');b.style.background=c;b.type='button';b.addEventListener('click',()=>onSelect(c));root.appendChild(b)})}
 function renderStickerChips(){els.stickerChips.innerHTML='';STICKERS.forEach(s=>{const b=document.createElement('button');b.className='stickerChip'+(state.selectedSticker===s?' active':'');b.type='button';b.textContent=s;b.style.fontSize='26px';b.addEventListener('click',()=>{state.selectedSticker=s;renderStickerChips()});els.stickerChips.appendChild(b)})}
 function currentFilterIndex(){return Math.max(0,FILTERS.findIndex(f=>f.id===state.filterId))}
@@ -203,7 +203,7 @@ function renderOverlayLayer(items,editable){els.overlayLayer.innerHTML='';els.ov
 function renderPreview(){els.video.classList.add('hidden');els.previewImage.classList.add('hidden');els.overlayLayer.classList.add('hidden');els.scratchCanvas.classList.add('hidden');els.scratchLabel.classList.add('hidden');els.placeholder.classList.add('hidden');els.panelOpen.classList.toggle('hidden',!(state.mode==='open'&&state.openScene));
   if(state.mode==='capture'&&!state.capturedImage){if(state.stream){els.video.classList.remove('hidden')}else{els.placeholder.classList.remove('hidden')}return}
   if(state.mode==='open'){
-    if(!state.openScene){els.placeholder.classList.remove('hidden');els.placeholder.textContent='受け取ったデータを選ぶと、ここで削って見られます。';return}
+    if(!state.openScene){els.placeholder.classList.remove('hidden');els.placeholder.textContent='受け取った共有データを選ぶと、ここで削って見られます。';return}
     els.previewImage.src=state.openScene.imageDataUrl;els.previewImage.style.filter=(FILTERS.find(f=>f.id===state.openScene.filter)||FILTERS[0]).css;els.previewImage.classList.remove('hidden');renderOverlayLayer(state.openScene.overlays,false);els.scratchCanvas.classList.remove('hidden');els.scratchLabel.classList.remove('hidden');setTimeout(initScratch,0);return;
   }
   if(state.capturedImage){els.previewImage.src=state.capturedImage;els.previewImage.style.filter=(FILTERS.find(f=>f.id===state.filterId)||FILTERS[0]).css;els.previewImage.classList.remove('hidden');renderOverlayLayer(state.overlays,true);return}
@@ -218,11 +218,11 @@ function readImageFile(file){ const fr=new FileReader(); fr.onload=()=>{state.ca
 function addText(){ if(!state.capturedImage){setMessage('先に写真を入れてください。','error'); return;} const value=els.textDraft.value.trim(); if(!value){setMessage('文字を入力してください。','error'); return;} const item={id:uid(),kind:'text',x:.5,y:.78,size:Number(els.textSize.value),color:state.selectedColor,motion:els.textMotion.value,value}; state.overlays.push(item); state.selectedId=item.id; state.activeTab='selected'; renderAll(); setMessage('文字を追加しました。'); }
 function addSticker(){ if(!state.capturedImage){setMessage('先に写真を入れてください。','error'); return;} const item={id:uid(),kind:'sticker',x:.78,y:.2,size:Number(els.stickerSize.value),motion:els.stickerMotion.value,value:state.selectedSticker}; state.overlays.push(item); state.selectedId=item.id; state.activeTab='selected'; renderAll(); setMessage('スタンプを追加しました。'); }
 function deleteSelected(){ if(!state.selectedId)return; state.overlays=state.overlays.filter(x=>x.id!==state.selectedId); state.selectedId=null; renderAll(); }
-function resetAll(){ stopVideoCamera(); state.mode='capture'; state.capturedImage=''; state.filterId='soft'; state.overlays=[]; state.selectedId=null; state.openScene=null; els.titleInput.value='放課後のひみつ'; state.activeTab='actions'; setMessage(''); renderAll(); }
+function resetAll(){ stopVideoCamera(); state.mode='capture'; state.capturedImage=''; state.filterId='soft'; state.overlays=[]; state.selectedId=null; state.openScene=null; els.titleInput.value='放課後カメラ'; state.activeTab='actions'; setMessage(''); renderAll(); }
 async function saveImage(){ const scene=buildScene(); if(!scene)return; const img=await new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=scene.imageDataUrl; }); const c=document.createElement('canvas'); c.width=img.naturalWidth||1080; c.height=img.naturalHeight||1440; const ctx=c.getContext('2d'); const scale=c.width/320; ctx.filter=(FILTERS.find(f=>f.id===scene.filter)||FILTERS[0]).css; ctx.drawImage(img,0,0,c.width,c.height); ctx.filter='none'; ctx.textAlign='center'; ctx.textBaseline='middle'; for(const item of scene.overlays){ const x=item.x*c.width, y=item.y*c.height, size=item.size*scale; if(item.kind==='text'){ ctx.save(); ctx.font=`700 ${size}px Arial,sans-serif`; ctx.fillStyle=item.color; ctx.shadowColor='rgba(255,255,255,.72)'; ctx.shadowBlur=Math.max(2,size*.08); ctx.fillText(item.value,x,y); ctx.restore(); } else { ctx.save(); ctx.font=`${size}px Arial,sans-serif`; ctx.fillText(item.value,x,y); ctx.restore(); } } const a=document.createElement('a'); a.href=c.toDataURL('image/png'); a.download=imageFileName(); a.click(); setMessage(`画像を保存しました: ${a.download}`); }
-function saveData(){ const scene=buildScene(); if(!scene)return; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(scene,null,2)],{type:'application/json'})); a.download=dataFileName(); a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); setMessage(`データを保存しました: ${a.download}`); }
-async function shareData(){ const scene=buildScene(); if(!scene)return; const file=new File([JSON.stringify(scene,null,2)],dataFileName(),{type:'application/json'}); try{ if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({title:scene.title,text:'このアプリで開く写真を送ります',files:[file]}); setMessage('データ送信画面を開きました。'); } else { setMessage('この端末では直接送れないため、先に「データを保存」を使ってください。'); } } catch(e){ setMessage('送信はキャンセルされました。'); } }
-function openData(file){ const fr=new FileReader(); fr.onload=()=>{ try{ const data=JSON.parse(String(fr.result||'')); if(!data.imageDataUrl||!Array.isArray(data.overlays)) throw new Error('bad'); state.openScene=data; state.mode='open'; renderAll(); setMessage('受け取ったデータを開きました。'); }catch(e){ setMessage('データを読み込めませんでした。','error'); } }; fr.readAsText(file); }
+function saveData(){ const scene=buildScene(); if(!scene)return; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(scene,null,2)],{type:'application/json'})); a.download=dataFileName(); a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); setMessage(`共有データを保存しました: ${a.download}`); }
+async function shareData(){ const scene=buildScene(); if(!scene)return; const file=new File([JSON.stringify(scene,null,2)],dataFileName(),{type:'application/json'}); try{ if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({title:scene.title,text:'このアプリで開ける共有データです',files:[file]}); setMessage('共有画面を開きました。'); } else { setMessage('この端末では直接共有できないため、先に「共有データを保存」を使ってください。'); } } catch(e){ setMessage('送信はキャンセルされました。'); } }
+function openData(file){ const fr=new FileReader(); fr.onload=()=>{ try{ const data=JSON.parse(String(fr.result||'')); if(!data.imageDataUrl||!Array.isArray(data.overlays)) throw new Error('bad'); state.openScene=data; state.mode='open'; renderAll(); setMessage('受け取った共有データを開きました。'); }catch(e){ setMessage('共有データを読み込めませんでした。','error'); } }; fr.readAsText(file); }
 function initScratch(){ if(!state.openScene)return; const canvas=els.scratchCanvas, rect=canvas.getBoundingClientRect(), dpr=window.devicePixelRatio||1; canvas.width=Math.max(1,Math.round(rect.width*dpr)); canvas.height=Math.max(1,Math.round(rect.height*dpr)); const ctx=canvas.getContext('2d'); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr); ctx.clearRect(0,0,rect.width,rect.height); ctx.fillStyle='#C8C3BC'; ctx.fillRect(0,0,rect.width,rect.height); ctx.fillStyle='rgba(255,255,255,.16)'; for(let i=0;i<7;i++){ctx.beginPath();ctx.arc((rect.width/8)*(i+1),rect.height*.2,rect.width*.08,0,Math.PI*2);ctx.fill();}}
 function scratchAt(x,y){ const rect=els.scratchCanvas.getBoundingClientRect(); const ctx=els.scratchCanvas.getContext('2d'); ctx.save(); ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(x-rect.left,y-rect.top,Math.max(28,rect.width*.06),0,Math.PI*2); ctx.fill(); ctx.restore(); }
 function rerenderMainColors(){ renderColorChips(els.colorChips,state.selectedColor,(c)=>{state.selectedColor=c; rerenderMainColors();}); }

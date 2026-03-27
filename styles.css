@@ -154,6 +154,6 @@ h1{margin:.35rem 0 0;font-size:30px;line-height:1.15}
   .ops{grid-template-columns:1fr 1fr}
   .btn{padding:12px 12px}
   .camera-switch{margin-bottom:12px}
-  .mobile-dock{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;position:fixed;left:12px;right:12px;bottom:max(12px, env(safe-area-inset-bottom));z-index:40;padding:10px;border-radius:22px;background:rgba(47,35,26,.92);backdrop-filter:blur(12px);box-shadow:0 12px 30px rgba(0,0,0,.22)}
+  .mobile-dock{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;position:fixed;left:12px;right:12px;bottom:max(12px, env(safe-area-inset-bottom));z-index:40;padding:10px;border-radius:22px;background:rgba(47,35,26,.92);backdrop-filter:blur(12px);box-shadow:0 12px 30px rgba(0,0,0,.22);pointer-events:none}
   .mobile-dock a{text-decoration:none;text-align:center;color:#fff7ea;font-size:12px;font-weight:700;padding:10px 4px;border-radius:14px;background:rgba(255,255,255,.08)}
 }

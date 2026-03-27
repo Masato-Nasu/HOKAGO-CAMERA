@@ -158,7 +158,7 @@
                 </div>
               </div>
               <div class="card-title">
-                <input id="titleInput" value="放課後のひみつ" />
+                <input id="titleInput" value="放課後カメラ" />
                 <p>instant memory object</p>
               </div>
             </div>
@@ -180,16 +180,16 @@
             <button id="captureBtn" class="btn primary">📷 写真を撮る</button>
             <button id="pickImageBtn" class="btn soft">🖼️ 写真を選ぶ</button>
             <button id="saveBtn" class="btn gold">⬇️ 画像で保存</button>
-            <button id="openBtn" class="btn mint">📂 ひらく用を開く</button>
+            <button id="openBtn" class="btn mint">📂 共有データを開く</button>
           </div>
           <div class="main-actions" style="margin-top:10px">
-            <button id="saveSceneBtn" class="btn gold2">💾 ひらく用を保存</button>
-            <button id="shareBtn" class="btn gold2">📤 ひらく用を送る</button>
+            <button id="saveSceneBtn" class="btn gold2">💾 共有データを保存</button>
+            <button id="shareBtn" class="btn gold2">📤 共有で送る</button>
             <button id="resetBtn" class="btn neutral" style="grid-column:1 / -1">↺ 撮りなおす</button>
           </div>
           <input id="imageInput" type="file" accept="image/*" class="hidden" />
           <input id="sceneInput" type="file" accept=".revecam,application/json" class="hidden" />
-          <div class="helper">ふつうに送りたいなら「画像で保存」。このアプリで削って開いてほしいときだけ「ひらく用を保存 / 送る」を使います。</div>
+          <div class="helper">ふつうに送りたいなら「画像で保存」。このアプリで削って開いてほしいときだけ「共有データを保存 / 共有で送る」を使います。</div>
           <div id="cameraError" class="helper error hidden"></div>
           <div id="shareMessage" class="helper hidden"></div>
         </div>
@@ -279,14 +279,14 @@
       panelActions:document.getElementById('panel-actions'), panelText:document.getElementById('panel-text'), panelSticker:document.getElementById('panel-sticker'), panelSelected:document.getElementById('panel-selected'), panelOpen:document.getElementById('panel-open'), resetScratchBtn:document.getElementById('resetScratchBtn')
     };
 
-    const state={ mode:'capture', activeTab:'actions', stream:null, capturedImage:'', filterId:'soft', title:'放課後のひみつ', overlays:[], selectedId:null, selectedColor:PASTELS[0], selectedSticker:STICKERS[0], openScene:null, drag:null };
+    const state={ mode:'capture', activeTab:'actions', stream:null, capturedImage:'', filterId:'soft', title:'放課後カメラ', overlays:[], selectedId:null, selectedColor:PASTELS[0], selectedSticker:STICKERS[0], openScene:null, drag:null };
 
     function uid(){ return `${Date.now()}-${Math.random().toString(36).slice(2,8)}`; }
     function clamp(n,min,max){ return Math.min(max, Math.max(min,n)); }
     function fileBaseName(title){ return (title||'retro-reveal').trim().replace(/[^a-zA-Z0-9ぁ-んァ-ヶ一-龯ー_-]+/g,'-').replace(/^-+|-+$/g,'') || 'retro-reveal'; }
     function sceneFileName(title){ return `${fileBaseName(title)}.revecam`; }
     function currentFilterCss(id){ return (FILTERS.find(f=>f.id===id)||FILTERS[0]).css; }
-    function buildScene(){ if(!state.capturedImage) return null; return { version:1, title:state.title, imageDataUrl:state.capturedImage, filter:state.filterId, overlays:state.overlays, createdAt:new Date().toISOString() }; }
+    function buildScene(){ if(!state.capturedImage){ setNote('先に写真を撮るか、写真を選んでください。', true); return null; } return { version:1, title:state.title, imageDataUrl:state.capturedImage, filter:state.filterId, overlays:state.overlays, createdAt:new Date().toISOString() }; }
     function setNote(text,isError=false){ const el=isError?els.cameraError:els.shareMessage; if(!text){ el.classList.add('hidden'); return; } el.textContent=text; el.classList.remove('hidden'); }
 
     async function startCamera(){
@@ -303,7 +303,7 @@
     function stopCamera(){ if(state.stream) state.stream.getTracks().forEach(track=>track.stop()); state.stream=null; els.video.srcObject=null; }
     function captureFromCamera(){ if(!els.video.videoWidth) return; const canvas=document.createElement('canvas'); canvas.width=els.video.videoWidth; canvas.height=els.video.videoHeight; const ctx=canvas.getContext('2d'); ctx.drawImage(els.video,0,0,canvas.width,canvas.height); state.capturedImage=canvas.toDataURL('image/jpeg', .92); stopCamera(); state.mode='decorate'; renderAll(); }
     function readImageFile(file){ const reader=new FileReader(); reader.onload=()=>{ state.capturedImage=String(reader.result||''); state.mode='decorate'; stopCamera(); renderAll(); }; reader.readAsDataURL(file); }
-    function resetAll(){ stopCamera(); state.mode='capture'; state.capturedImage=''; state.overlays=[]; state.selectedId=null; state.openScene=null; state.title='放課後のひみつ'; els.titleInput.value=state.title; setNote(''); setNote('',true); renderAll(); startCamera(); }
+    function resetAll(){ stopCamera(); state.mode='capture'; state.capturedImage=''; state.overlays=[]; state.selectedId=null; state.openScene=null; state.title='放課後カメラ'; els.titleInput.value=state.title; setNote(''); setNote('',true); renderAll(); startCamera(); }
 
     function saveDataUrl(dataUrl, filename){ const a=document.createElement('a'); a.href=dataUrl; a.download=filename; a.click(); }
     function loadImage(src){ return new Promise((resolve,reject)=>{ const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=src; }); }
@@ -317,9 +317,9 @@
       saveDataUrl(canvas.toDataURL('image/png'), `${fileBaseName(scene.title)}.png`);
       setNote(`画像で保存しました: ${fileBaseName(scene.title)}.png`);
     }
-    function saveScene(){ const scene=buildScene(); if(!scene) return; const blob=new Blob([JSON.stringify(scene,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=sceneFileName(scene.title); a.click(); URL.revokeObjectURL(url); setNote(`ひらく用を保存しました: ${sceneFileName(scene.title)}`); }
-    async function shareScene(){ const scene=buildScene(); if(!scene) return; const file=new File([JSON.stringify(scene,null,2)],sceneFileName(scene.title),{type:'application/json'}); try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({ title:scene.title, text:'このアプリで開く写真を送ります', files:[file] }); setNote('ひらく用を送る画面を開きました。'); } else { setNote('この端末では直接送れないため、先に「ひらく用を保存」を使ってください。'); } } catch(e){ setNote('送信はキャンセルされました。'); } }
-    function openSceneFile(file){ const reader=new FileReader(); reader.onload=()=>{ try{ const parsed=JSON.parse(String(reader.result||'')); if(!parsed.imageDataUrl || !Array.isArray(parsed.overlays)) throw new Error('invalid'); state.openScene=parsed; state.mode='open'; renderAll(); }catch(e){ setNote('ひらく用データを読み込めませんでした。'); } }; reader.readAsText(file); }
+    function saveScene(){ const scene=buildScene(); if(!scene) return; const blob=new Blob([JSON.stringify(scene,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=sceneFileName(scene.title); a.click(); URL.revokeObjectURL(url); setNote(`共有データを保存しました: ${sceneFileName(scene.title)}`); }
+    async function shareScene(){ const scene=buildScene(); if(!scene) return; const file=new File([JSON.stringify(scene,null,2)],sceneFileName(scene.title),{type:'application/json'}); try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({ title:scene.title, text:'このアプリで開ける共有データです', files:[file] }); setNote('共有画面を開きました。'); } else { setNote('この端末では直接共有できないため、先に「共有データを保存」を使ってください。'); } } catch(e){ setNote('送信はキャンセルされました。'); } }
+    function openSceneFile(file){ const reader=new FileReader(); reader.onload=()=>{ try{ const parsed=JSON.parse(String(reader.result||'')); if(!parsed.imageDataUrl || !Array.isArray(parsed.overlays)) throw new Error('invalid'); state.openScene=parsed; state.mode='open'; renderAll(); }catch(e){ setNote('共有データを読み込めませんでした。'); } }; reader.readAsText(file); }
 
     function renderColorChips(root, selectedColor, onSelect){ root.innerHTML=''; PASTELS.forEach(color=>{ const btn=document.createElement('button'); btn.className='color-chip'+(selectedColor===color?' active':''); btn.style.background=color; btn.addEventListener('click',()=>onSelect(color)); root.appendChild(btn); }); }
     function renderStickerChips(){ els.stickerChips.innerHTML=''; STICKERS.forEach(sticker=>{ const btn=document.createElement('button'); btn.className='sticker-chip'+(state.selectedSticker===sticker?' active':''); btn.textContent=sticker; btn.style.fontSize='26px'; btn.addEventListener('click',()=>{ state.selectedSticker=sticker; renderStickerChips(); }); els.stickerChips.appendChild(btn); }); }
@@ -386,7 +386,7 @@
         return;
       }
       if(modeOpen){
-        if(!state.openScene){ els.placeholder.classList.remove('hidden'); els.placeholder.textContent='ひらく用データを選ぶと、ここで削って見られます。'; return; }
+        if(!state.openScene){ els.placeholder.classList.remove('hidden'); els.placeholder.textContent='共有データを選ぶと、ここで削って見られます。'; return; }
         els.previewImage.src=state.openScene.imageDataUrl;
         els.previewImage.style.filter=currentFilterCss(state.openScene.filter);
         els.previewImage.classList.remove('hidden');
@@ -406,7 +406,7 @@
       els.placeholder.classList.remove('hidden');
     }
 
-    function renderButtons(){ const canDecorate=!!state.capturedImage; [els.saveBtn,els.saveSceneBtn,els.shareBtn,els.addTextBtn,els.addStickerBtn].forEach(btn=>btn.disabled=!canDecorate); }
+    function renderButtons(){ const canDecorate=!!state.capturedImage; [els.addTextBtn,els.addStickerBtn].forEach(btn=>btn.disabled=!canDecorate); [els.saveBtn,els.saveSceneBtn,els.shareBtn].forEach(btn=>btn.disabled=false); }
     function updateModeButtons(){ els.modeBtns.forEach(btn=>btn.classList.toggle('active', btn.dataset.modeBtn===state.mode)); }
     function renderAll(){ state.title=els.titleInput.value; updateModeButtons(); renderTabs(); renderButtons(); renderPreview(); renderSelectedEditor(); }
 
